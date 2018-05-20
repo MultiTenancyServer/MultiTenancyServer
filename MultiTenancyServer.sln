@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2000
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiTenancyServer", "src\MultiTenancyServer\MultiTenancyServer.csproj", "{4191E444-B850-4BE1-A303-C183901E3ACB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiTenancyServer.Stores", "src\MultiTenancyServer.Stores\MultiTenancyServer.Stores.csproj", "{5BAD01AE-4940-4F11-B67B-C284DEDC595E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4191E444-B850-4BE1-A303-C183901E3ACB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4191E444-B850-4BE1-A303-C183901E3ACB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4191E444-B850-4BE1-A303-C183901E3ACB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4191E444-B850-4BE1-A303-C183901E3ACB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BAD01AE-4940-4F11-B67B-C284DEDC595E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BAD01AE-4940-4F11-B67B-C284DEDC595E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BAD01AE-4940-4F11-B67B-C284DEDC595E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BAD01AE-4940-4F11-B67B-C284DEDC595E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EBE74528-DB53-4F90-927C-E08588B4EC9F}
+	EndGlobalSection
+EndGlobal

@@ -20,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The builder.</param>
         /// <param name="tenants">The tenants.</param>
         /// <returns></returns>
-        public static TenancyBuilder<TTenant, TKey> AddInMemoryTenants<TTenant, TKey>(this TenancyBuilder<TTenant, TKey> builder, IEnumerable<TTenant> tenants)
+        public static TenancyBuilder<TTenant, TKey> AddInMemoryStore<TTenant, TKey>(this TenancyBuilder<TTenant, TKey> builder, IEnumerable<TTenant> tenants)
             where TTenant : TenancyTenant<TKey>
             where TKey : IEquatable<TKey>
         {
@@ -37,13 +37,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The builder.</param>
         /// <param name="section">The configuration section containing the configuration data.</param>
         /// <returns></returns>
-        public static TenancyBuilder<TTenant, TKey> AddInMemoryTenants<TTenant, TKey>(this TenancyBuilder<TTenant, TKey> builder, IConfigurationSection section)
+        public static TenancyBuilder<TTenant, TKey> AddInMemoryStore<TTenant, TKey>(this TenancyBuilder<TTenant, TKey> builder, IConfigurationSection section)
             where TTenant : TenancyTenant<TKey>
             where TKey : IEquatable<TKey>
         {
             var tenants = new List<TTenant>();
             section.Bind(tenants);
-            return builder.AddInMemoryTenants(tenants);
+            return builder.AddInMemoryStore(tenants);
         }
     }
 }

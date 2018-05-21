@@ -1,12 +1,10 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/6by9bawg017k26tl/branch/master?svg=true)](https://ci.appveyor.com/project/krispenner/multitenancyserver/branch/master)
 # MultiTenancyServer
 
-## Design
-MultiTenancyServer aims to be a lightweight package for adding multi-tenancy to any codebase easily. Heavily influenced from the design of ASP.NET Core Identity. You can add multi-tenancy support to your model without adding any tenant partition key properties to any classes/entities.
-Using ASP.NET Core it can retrieve the current tenant from a custom domain name, partial hostname, HTTP request header, URL path, query string parameter, authenticated user claim, or a custom implementation. Using Entity Framework Core, tenant partition keys are added as shadow properties (or actual properties) and enforced through global filters.
+MultiTenancyServer aims to be a lightweight package for adding multi-tenancy support to any codebase easily. It is heavily influenced from the design of ASP.NET Core Identity. You can add multi-tenancy support to your model without adding any tenant partition key properties to any classes/entities. Using ASP.NET Core it can retrieve the current tenant from a custom domain name, partial hostname, HTTP request header, URL path, query string parameter, authenticated user claim, or a custom implementation. Using Entity Framework Core, tenant partition keys are added as shadow properties (or optionally concrete properties) and enforced through global query filters. The below example shows how to use MultiTenancyServer with ASP.NET Core Identity and IdentityServer4 together, if you only need one remove the other or use this as a base for your own requirements.
 
 ## Define Model
-Define your own tenant model, or inherit from TenancyTenant, or just use TenancyTenant as is.
+Define your own tenant model, or inherit from TenancyTenant, or just use TenancyTenant as is. In this example we will inherit from TenancyTenant.
 
 ``` cs
 public class Tenant : TenancyTenant
@@ -46,10 +44,20 @@ public void ConfigureServices(IServiceCollection services)
                 // from authenticated user principal.
                 .AddClaimParser("http://schemas.microsoft.com/identity/claims/tenantid");
         })
-        // Use in memory tenant store (MultiTenancyServer.Stores), or
-        .AddInMemoryTenants(new Tenant[] { new Tenant() { Id = "TENANT_1", CanonicalName = "Tenant1", NormalizedCanonicalName = "tenant1" } })
-        // Use EF Core store (MultiTenancyServer.EntityFrameworkCore).
-        .AddEntityFrameworkStores<AppDbContext, Tenant, string>();
+        // Use in memory tenant store for testing (MultiTenancyServer.Stores)
+        .AddInMemoryStore(new Tenant[] 
+        { 
+            new Tenant() 
+            { 
+                Id = "TENANT_1", 
+                CanonicalName = "Tenant1", 
+                NormalizedCanonicalName = "TENANT1"
+            }
+        })
+        // Use EF Core store for production (MultiTenancyServer.EntityFrameworkCore).
+        .AddEntityFrameworkStore<AppDbContext, Tenant, string>()
+        // Or implement your own store...
+        .AddMongoDbStore();
 }    
 ```
 
@@ -74,6 +82,9 @@ Example of DbContext with multi-tenancy support for ASP.NET Core Identity and Id
             ILogger<AppDbContext> logger)
             : base(options)
         {
+            // The ID of the currently scoped tenant (of the current HTTP request).
+            // While this method is async to facilitate async scenarios,
+            // the built-in provider for ASP.NET Core will return immediately.
             _tenantId = tenancyProvider?.GetCurrentTenantAsync().GetAwaiter().GetResult()?.Id;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -91,14 +102,14 @@ Example of DbContext with multi-tenancy support for ASP.NET Core Identity and Id
         {
             base.OnModelCreating(builder);
 
-            // IdentityServer4 implementation.
+            // IdentityServer4 configuration.
             var configurationStoreOptions = new ConfigurationStoreOptions();
             builder.ConfigureClientContext(configurationStoreOptions);
             builder.ConfigureResourcesContext(configurationStoreOptions);
             var operationalStoreOptions = new OperationalStoreOptions();
             builder.ConfigurePersistedGrantContext(operationalStoreOptions);
 
-            // MultiTenancyServer implementation.
+            // MultiTenancyServer configuration.
             var tenantStoreOptions = new TenantStoreOptions();
             builder.ConfigureTenantContext<Tenant, string>(tenantStoreOptions);
 

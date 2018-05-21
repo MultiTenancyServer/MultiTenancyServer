@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MultiTenancyServer\MultiTenancyServer.csproj" />
+    <ProjectReference Include="..\Core\MultiTenancyServer.csproj" />
   </ItemGroup>
 
 </Project>

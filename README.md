@@ -1,7 +1,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/6by9bawg017k26tl/branch/master?svg=true)](https://ci.appveyor.com/project/krispenner/multitenancyserver/branch/master)
 # MultiTenancyServer
 
-MultiTenancyServer aims to be a lightweight package for adding multi-tenancy support to any codebase easily. It is heavily influenced from the design of ASP.NET Core Identity. You can add multi-tenancy support to your model without adding any tenant partition key properties to any classes/entities. Using ASP.NET Core it can retrieve the current tenant from a custom domain name, partial hostname, HTTP request header, URL path, query string parameter, authenticated user claim, or a custom implementation. Using Entity Framework Core, tenant partition keys are added as shadow properties (or optionally concrete properties) and enforced through global query filters. The below example shows how to use MultiTenancyServer with ASP.NET Core Identity and IdentityServer4 together, if you only need one remove the other or use this as a base for your own requirements.
+MultiTenancyServer aims to be a lightweight package for adding multi-tenancy support to any codebase easily. It is heavily influenced from the design of ASP.NET Core Identity. You can add multi-tenancy support to your model without adding any tenant partition key properties to any classes/entities. Using ASP.NET Core it will retrieve the current tenant from a custom domain name, sub-domain, partial hostname, HTTP request header, partial URL path, query string parameter, authenticated user claim, or a custom implementation. Using Entity Framework Core, tenant partition keys are added as shadow properties (or optionally concrete properties) and enforced through global query filters. The below example shows how to use MultiTenancyServer with ASP.NET Core Identity and IdentityServer4 together, if you only need one remove the other or use this as a base for your own requirements.
 
 ## Define Model
 Define your own tenant model, or inherit from TenancyTenant, or just use TenancyTenant as is. In this example we will inherit from TenancyTenant.
@@ -9,6 +9,7 @@ Define your own tenant model, or inherit from TenancyTenant, or just use Tenancy
 ``` cs
 public class Tenant : TenancyTenant
 {
+    // Custom property for display name of tenant.
     public string Name { get; set; }
 }
 ```
@@ -23,25 +24,27 @@ public void ConfigureServices(IServiceCollection services)
         // as type Tenant with an ID (key) of type string.
         .AddMultiTenancy<Tenant, string>()
         // Requires MultiTenancyServer.AspNetCore
-        // Add the HTTP request parser based on your requirements,
-        // or implement your own IRequestParser.
+        // Add one or more IRequestParsers.
         .AddRequestParsers(parsers =>
         {
-            // Parsers are processed in the order they are added.
-            // Typically 1 or 2 parsers should be all you need.
+            // Parsers are processed in the order they are added,
+            // typically 1 or 2 parsers should be all you need.
             parsers
                 // www.tenant1.com
                 .AddDomainParser()
                 // tenant1.tenants.multitenancyserver.io
-                .AddHostParserForParent(".tenants.multitenancyserver.io")
+                .AddSubDomainParser(".tenants.multitenancyserver.io")
+                // from partial hostname
+                .AddHostnameParser("^(regular_expression)$")
                 // HTTP header X-TENANT = tenant1
                 .AddHeaderParser("X-TENANT")
                 // /tenants/tenant1
-                .AddPathParserForParent("/tenants/")
+                .AddChildPathParser("/tenants/")
+                // from partial path
+                .AddPathParser("/tenants/")
                 // ?tenant=tenant1
                 .AddQueryParser("tenant")
-                // Get user claim http://schemas.microsoft.com/identity/claims/tenantid
-                // from authenticated user principal.
+                // Claim from authenticated user principal.
                 .AddClaimParser("http://schemas.microsoft.com/identity/claims/tenantid");
         })
         // Use in memory tenant store for testing (MultiTenancyServer.Stores)

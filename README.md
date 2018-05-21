@@ -20,11 +20,9 @@ Example of adding multi-tenancy support to ASP.NET Core.
 public void ConfigureServices(IServiceCollection services)
 {
     services
-        // Add Multi-Tenancy Server defining TTenant<TKey>
-        // as type Tenant with an ID (key) of type string.
+        // Add Multi-Tenancy Server defining TTenant<TKey> as type Tenant with an ID (key) of type string.
         .AddMultiTenancy<Tenant, string>()
-        // Requires MultiTenancyServer.AspNetCore
-        // Add one or more IRequestParsers.
+        // Add one or more [IRequestParser](https://github.com/MultiTenancyServer/MultiTenancyServer.AspNetCore/blob/master/src/MultiTenancyServer.AspNetCore/Parsers/IRequestParser.cs) (MultiTenancyServer.AspNetCore).
         .AddRequestParsers(parsers =>
         {
             // Parsers are processed in the order they are added,
@@ -45,7 +43,9 @@ public void ConfigureServices(IServiceCollection services)
                 // ?tenant=tenant1
                 .AddQueryParser("tenant")
                 // Claim from authenticated user principal.
-                .AddClaimParser("http://schemas.microsoft.com/identity/claims/tenantid");
+                .AddClaimParser("http://schemas.microsoft.com/identity/claims/tenantid")
+                // Add custom request parser.
+                .AddMyCustomParser();
         })
         // Use in memory tenant store for testing (MultiTenancyServer.Stores)
         .AddInMemoryStore(new Tenant[] 

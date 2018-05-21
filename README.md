@@ -1,12 +1,12 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/6by9bawg017k26tl/branch/master?svg=true)](https://ci.appveyor.com/project/krispenner/multitenancyserver/branch/master)
 # MultiTenancyServer
 
-MultiTenancyServer aims to be a lightweight package for adding multi-tenancy support to any codebase easily. It is heavily influenced from the design of ASP.NET Core Identity. You can add multi-tenancy support to your model without adding any tenant partition key properties to any classes/entities. Using ASP.NET Core it will retrieve the current tenant from a custom domain name, sub-domain, partial hostname, HTTP request header, partial URL path, query string parameter, authenticated user claim, or a custom implementation. Using Entity Framework Core, tenant partition keys are added as shadow properties (or optionally concrete properties) and enforced through global query filters. The below example shows how to use MultiTenancyServer with ASP.NET Core Identity and IdentityServer4 together, if you only need one remove the other or use this as a base for your own requirements.
+MultiTenancyServer aims to be a lightweight package for adding multi-tenancy support to any codebase easily. It is heavily influenced from the design of ASP.NET Core Identity. You can add multi-tenancy support to your model without adding any tenant partition key properties to any classes/entities. Using ASP.NET Core, the current tenant is retrieved from a custom domain name, sub-domain, partial hostname, HTTP request header, child or partial URL path, query string parameter, authenticated user claim, or a custom implementation. Using Entity Framework Core, tenant partition keys are added as shadow properties (or optionally concrete properties) and enforced through global query filters. The below example shows how to use MultiTenancyServer with ASP.NET Core Identity and IdentityServer4 together, if you only need one remove the other or use this as a base for your own requirements.
 
 ## Define Model
 Define your own tenant model, or inherit from TenancyTenant, or just use TenancyTenant as is. In this example we will inherit from TenancyTenant.
 
-``` cs
+``` csharp
 public class Tenant : TenancyTenant
 {
     // Custom property for display name of tenant.
@@ -16,13 +16,13 @@ public class Tenant : TenancyTenant
 
 ## Register Services
 Example of adding multi-tenancy support to ASP.NET Core.
-``` cs
+``` csharp
 public void ConfigureServices(IServiceCollection services)
 {
     services
         // Add Multi-Tenancy Server defining TTenant<TKey> as type Tenant with an ID (key) of type string.
         .AddMultiTenancy<Tenant, string>()
-        // Add one or more [IRequestParser](https://github.com/MultiTenancyServer/MultiTenancyServer.AspNetCore/blob/master/src/MultiTenancyServer.AspNetCore/Parsers/IRequestParser.cs) (MultiTenancyServer.AspNetCore).
+        // Add one or more IRequestParser (MultiTenancyServer.AspNetCore).
         .AddRequestParsers(parsers =>
         {
             // Parsers are processed in the order they are added,
@@ -31,7 +31,7 @@ public void ConfigureServices(IServiceCollection services)
                 // www.tenant1.com
                 .AddDomainParser()
                 // tenant1.tenants.multitenancyserver.io
-                .AddSubDomainParser(".tenants.multitenancyserver.io")
+                .AddSubdomainParser(".tenants.multitenancyserver.io")
                 // from partial hostname
                 .AddHostnameParser("^(regular_expression)$")
                 // HTTP header X-TENANT = tenant1
@@ -66,7 +66,7 @@ public void ConfigureServices(IServiceCollection services)
 
 ## Register Entities
 Example of DbContext with multi-tenancy support for ASP.NET Core Identity and IdentityServer4.
-``` cs
+``` csharp
     public class AppDbContext : 
         // ASP.NET Core Identity EF Core
         IdentityDbContext<User, Role, string, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>, 

@@ -41,7 +41,7 @@ public void ConfigureServices(IServiceCollection services)
                 // /tenants/tenant1
                 .AddChildPathParser("/tenants/")
                 // from partial path
-                .AddPathParser("/tenants/")
+                .AddPathParser("^(regular_expression)$")
                 // ?tenant=tenant1
                 .AddQueryParser("tenant")
                 // Claim from authenticated user principal.

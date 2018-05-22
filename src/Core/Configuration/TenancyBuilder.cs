@@ -41,10 +41,10 @@ namespace MultiTenancyServer.Configuration.DependencyInjection
         /// </summary>
         /// <typeparam name="TValidator">The tenant validator type.</typeparam>
         /// <returns>The current <see cref="TenancyBuilder"/> instance.</returns>
-        public virtual TenancyBuilder<TTenant, TKey> AddTenantValidator<TValidator>(Func<IServiceProvider, TValidator> implementationFactory = null)
+        public virtual TenancyBuilder<TTenant, TKey> AddTenantValidator<TValidator>(Func<IServiceProvider, TValidator> validatorFactory = null)
             where TValidator : class, ITenantValidator<TTenant>
         {
-            Services.AddScoped<ITenantValidator<TTenant>, TValidator>(implementationFactory);
+            Services.AddScoped<ITenantValidator<TTenant>, TValidator>(validatorFactory);
             return this;
         }
 
@@ -53,10 +53,10 @@ namespace MultiTenancyServer.Configuration.DependencyInjection
         /// </summary>
         /// <typeparam name="TDescriber">The type of the error describer.</typeparam>
         /// <returns>The current <see cref="TenancyBuilder"/> instance.</returns>
-        public virtual TenancyBuilder<TTenant, TKey> AddErrorDescriber<TDescriber>(Func<IServiceProvider, TDescriber> implementationFactory = null)
+        public virtual TenancyBuilder<TTenant, TKey> AddErrorDescriber<TDescriber>(Func<IServiceProvider, TDescriber> describerFactory = null)
             where TDescriber : TenancyErrorDescriber
         {
-            Services.AddScoped<TenancyErrorDescriber, TDescriber>(implementationFactory);
+            Services.AddScoped<TenancyErrorDescriber, TDescriber>(describerFactory);
             return this;
         }
 
@@ -65,10 +65,10 @@ namespace MultiTenancyServer.Configuration.DependencyInjection
         /// </summary>
         /// <typeparam name="TStore">The tenant store type.</typeparam>
         /// <returns>The current <see cref="TenancyBuilder"/> instance.</returns>
-        public virtual TenancyBuilder<TTenant, TKey> AddTenantStore<TStore>(Func<IServiceProvider, TStore> implementationFactory = null)
+        public virtual TenancyBuilder<TTenant, TKey> AddTenantStore<TStore>(Func<IServiceProvider, TStore> storeFactory = null)
             where TStore : class, ITenantStore<TTenant>
         {
-            Services.AddScoped<ITenantStore<TTenant>, TStore>(implementationFactory);
+            Services.AddScoped<ITenantStore<TTenant>, TStore>(storeFactory);
             return this;
         }
 
@@ -77,10 +77,10 @@ namespace MultiTenancyServer.Configuration.DependencyInjection
         /// </summary>
         /// <typeparam name="TTenantManager">The type of the tenant manager to add.</typeparam>
         /// <returns>The current <see cref="TenancyBuilder"/> instance.</returns>
-        public virtual TenancyBuilder<TTenant, TKey> AddTenantManager<TTenantManager>(Func<IServiceProvider, TTenantManager> implementationFactory = null)
+        public virtual TenancyBuilder<TTenant, TKey> AddTenantManager<TTenantManager>(Func<IServiceProvider, TTenantManager> managerFactory = null)
             where TTenantManager : TenantManager<TTenant>
         {
-            Services.AddScoped<TenantManager<TTenant>, TTenantManager>(implementationFactory);
+            Services.AddScoped<TenantManager<TTenant>, TTenantManager>(managerFactory);
             return this;
         }
 
@@ -89,10 +89,10 @@ namespace MultiTenancyServer.Configuration.DependencyInjection
         /// </summary>
         /// <typeparam name="TTenancyProvider">The type of the tenancy provider to add.</typeparam>
         /// <returns>The current <see cref="TenancyBuilder"/> instance.</returns>
-        public virtual TenancyBuilder<TTenant, TKey> AddTenancyProvider<TTenancyProvider>(Func<IServiceProvider, TTenancyProvider> implementationFactory = null)
+        public virtual TenancyBuilder<TTenant, TKey> AddTenancyProvider<TTenancyProvider>(Func<IServiceProvider, TTenancyProvider> providerFactory = null)
             where TTenancyProvider : class, ITenancyProvider<TTenant>
         {
-            Services.AddScoped<ITenancyProvider<TTenant>, TTenancyProvider>(implementationFactory);
+            Services.AddScoped<ITenancyProvider<TTenant>, TTenancyProvider>(providerFactory);
             return this;
         }
     }

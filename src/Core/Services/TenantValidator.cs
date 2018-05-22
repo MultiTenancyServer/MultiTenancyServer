@@ -32,10 +32,10 @@ namespace MultiTenancyServer.Services
         /// <summary>
         /// Validates the specified <paramref name="tenant"/> as an asynchronous operation.
         /// </summary>
-        /// <param name="manager">The <see cref="TenancyManager{TTenant}"/> that can be used to retrieve tenant properties.</param>
+        /// <param name="manager">The <see cref="TenantManager{TTenant}"/> that can be used to retrieve tenant properties.</param>
         /// <param name="tenant">The tenant to validate.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="TenancyResult"/> of the validation operation.</returns>
-        public virtual async Task<TenancyResult> ValidateAsync(TenancyManager<TTenant> manager, TTenant tenant)
+        public virtual async Task<TenancyResult> ValidateAsync(TenantManager<TTenant> manager, TTenant tenant)
         {
             ArgCheck.NotNull(nameof(manager), manager);
             ArgCheck.NotNull(nameof(tenant), tenant);
@@ -44,7 +44,7 @@ namespace MultiTenancyServer.Services
             return errors.Count > 0 ? TenancyResult.Failed(errors.ToArray()) : TenancyResult.Success;
         }
 
-        private async Task ValidateCanonicalName(TenancyManager<TTenant> manager, TTenant tenant, ICollection<TenancyError> errors)
+        private async Task ValidateCanonicalName(TenantManager<TTenant> manager, TTenant tenant, ICollection<TenancyError> errors)
         {
             var canonicalName = await manager.GetCanonicalNameAsync(tenant);
             if (string.IsNullOrWhiteSpace(canonicalName))
@@ -58,7 +58,7 @@ namespace MultiTenancyServer.Services
             }
             else
             {
-                var owner = await manager.FindByNameAsync(canonicalName);
+                var owner = await manager.FindByCanonicalNameAsync(canonicalName);
                 if (owner != null &&
                     !string.Equals(await manager.GetTenantIdAsync(owner), await manager.GetTenantIdAsync(tenant)))
                 {

@@ -4,6 +4,7 @@
 using System;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using MultiTenancyServer.Services;
 using MultiTenancyServer.Stores;
 
@@ -23,28 +24,9 @@ namespace MultiTenancyServer.Configuration.DependencyInjection
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection"/> to attach to.</param>
         public TenancyBuilder(IServiceCollection services)
-            : this(typeof(TTenant), services)
         {
-        }
-
-        /// <summary>
-        /// Creates a new instance of <see cref="TenancyBuilder"/>.
-        /// </summary>
-        /// <param name="tenant">The <see cref="Type"/> to use for the tenants.</param>
-        /// <param name="services">The <see cref="IServiceCollection"/> to attach to.</param>
-        private TenancyBuilder(Type tenant, IServiceCollection services)
-        {
-            TenantType = tenant;
             Services = services;
         }
-
-        /// <summary>
-        /// Gets the <see cref="Type"/> used for tenants.
-        /// </summary>
-        /// <value>
-        /// The <see cref="Type"/> used for tenants.
-        /// </value>
-        public Type TenantType { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="IServiceCollection"/> services are attached to.
@@ -54,28 +36,27 @@ namespace MultiTenancyServer.Configuration.DependencyInjection
         /// </value>
         public IServiceCollection Services { get; private set; }
 
-        private TenancyBuilder<TTenant, TKey> AddScoped(Type serviceType, Type concreteType)
-        {
-            Services.AddScoped(serviceType, concreteType);
-            return this;
-        }
-
         /// <summary>
         /// Adds an <see cref="ITenantValidator{TTenant}"/> for the <seealso cref="TenantType"/>.
         /// </summary>
         /// <typeparam name="TValidator">The tenant validator type.</typeparam>
         /// <returns>The current <see cref="TenancyBuilder"/> instance.</returns>
-        public virtual TenancyBuilder<TTenant, TKey> AddTenantValidator<TValidator>() where TValidator : class
-            => AddScoped(typeof(ITenantValidator<>).MakeGenericType(TenantType), typeof(TValidator));
+        public virtual TenancyBuilder<TTenant, TKey> AddTenantValidator<TValidator>(Func<IServiceProvider, TValidator> implementationFactory = null)
+            where TValidator : class, ITenantValidator<TTenant>
+        {
+            Services.AddScoped<ITenantValidator<TTenant>, TValidator>(implementationFactory);
+            return this;
+        }
 
         /// <summary>
         /// Adds an <see cref="TenancyErrorDescriber"/>.
         /// </summary>
         /// <typeparam name="TDescriber">The type of the error describer.</typeparam>
         /// <returns>The current <see cref="TenancyBuilder"/> instance.</returns>
-        public virtual TenancyBuilder<TTenant, TKey> AddErrorDescriber<TDescriber>() where TDescriber : TenancyErrorDescriber
+        public virtual TenancyBuilder<TTenant, TKey> AddErrorDescriber<TDescriber>(Func<IServiceProvider, TDescriber> implementationFactory = null)
+            where TDescriber : TenancyErrorDescriber
         {
-            Services.AddScoped<TenancyErrorDescriber, TDescriber>();
+            Services.AddScoped<TenancyErrorDescriber, TDescriber>(implementationFactory);
             return this;
         }
 
@@ -84,27 +65,35 @@ namespace MultiTenancyServer.Configuration.DependencyInjection
         /// </summary>
         /// <typeparam name="TStore">The tenant store type.</typeparam>
         /// <returns>The current <see cref="TenancyBuilder"/> instance.</returns>
-        public virtual TenancyBuilder<TTenant, TKey> AddTenantStore<TStore>() where TStore : class
-            => AddScoped(typeof(ITenantStore<>).MakeGenericType(TenantType), typeof(TStore));
+        public virtual TenancyBuilder<TTenant, TKey> AddTenantStore<TStore>(Func<IServiceProvider, TStore> implementationFactory = null)
+            where TStore : class, ITenantStore<TTenant>
+        {
+            Services.AddScoped<ITenantStore<TTenant>, TStore>(implementationFactory);
+            return this;
+        }
 
         /// <summary>
-        /// Adds a <see cref="TenancyManager{TTenant}"/> for the <seealso cref="TenantType"/>.
+        /// Adds a <see cref="TenantManager{TTenant}"/> for the <seealso cref="TenantType"/>.
         /// </summary>
         /// <typeparam name="TTenantManager">The type of the tenant manager to add.</typeparam>
         /// <returns>The current <see cref="TenancyBuilder"/> instance.</returns>
-        public virtual TenancyBuilder<TTenant, TKey> AddTenantManager<TTenantManager>() where TTenantManager : class
+        public virtual TenancyBuilder<TTenant, TKey> AddTenantManager<TTenantManager>(Func<IServiceProvider, TTenantManager> implementationFactory = null)
+            where TTenantManager : TenantManager<TTenant>
         {
-            var tenantManagerType = typeof(TenancyManager<>).MakeGenericType(TenantType);
-            var customType = typeof(TTenantManager);
-            if (!tenantManagerType.GetTypeInfo().IsAssignableFrom(customType.GetTypeInfo()))
-            {
-                throw new InvalidOperationException(string.Format(Resources.InvalidManagerTypeFormat3, customType.Name, typeof(TenancyManager<>).Name.TrimEnd('`', '1'), TenantType.Name));
-            }
-            if (tenantManagerType != customType)
-            {
-                Services.AddScoped(customType, services => services.GetRequiredService(tenantManagerType));
-            }
-            return AddScoped(tenantManagerType, customType);
+            Services.AddScoped<TenantManager<TTenant>, TTenantManager>(implementationFactory);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a <see cref="ITenancyProvider{TTenant}"/> for the <seealso cref="TenantType"/>.
+        /// </summary>
+        /// <typeparam name="TTenancyProvider">The type of the tenancy provider to add.</typeparam>
+        /// <returns>The current <see cref="TenancyBuilder"/> instance.</returns>
+        public virtual TenancyBuilder<TTenant, TKey> AddTenancyProvider<TTenancyProvider>(Func<IServiceProvider, TTenancyProvider> implementationFactory = null)
+            where TTenancyProvider : class, ITenancyProvider<TTenant>
+        {
+            Services.AddScoped<ITenancyProvider<TTenant>, TTenancyProvider>(implementationFactory);
+            return this;
         }
     }
 }

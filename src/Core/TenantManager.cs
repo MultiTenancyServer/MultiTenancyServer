@@ -21,7 +21,7 @@ namespace MultiTenancyServer
     /// Provides the APIs for managing tenants in a persistence store.
     /// </summary>
     /// <typeparam name="TTenant">The type encapsulating a tenant.</typeparam>
-    public class TenancyManager<TTenant> : IDisposable where TTenant : class
+    public class TenantManager<TTenant> : IDisposable where TTenant : class
     {
         private bool _disposed;
         private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
@@ -33,7 +33,7 @@ namespace MultiTenancyServer
         protected virtual CancellationToken CancellationToken => CancellationToken.None;
 
         /// <summary>
-        /// Constructs a new instance of <see cref="TenancyManager{TTenant}"/>.
+        /// Constructs a new instance of <see cref="TenantManager{TTenant}"/>.
         /// </summary>
         /// <param name="store">The persistence store the manager will operate over.</param>
         /// <param name="optionsAccessor">The accessor used to access the <see cref="TenancyOptions"/>.</param>
@@ -42,13 +42,13 @@ namespace MultiTenancyServer
         /// <param name="errors">The <see cref="TenancyErrorDescriber"/> used to provider error messages.</param>
         /// <param name="services">The <see cref="IServiceProvider"/> used to resolve services.</param>
         /// <param name="logger">The logger used to log messages, warnings and errors.</param>
-        public TenancyManager(ITenantStore<TTenant> store,
+        public TenantManager(ITenantStore<TTenant> store,
             IOptions<TenancyOptions> optionsAccessor,
             IEnumerable<ITenantValidator<TTenant>> tenantValidators,
             ILookupNormalizer keyNormalizer,
             TenancyErrorDescriber errors,
             IServiceProvider services,
-            ILogger<TenancyManager<TTenant>> logger)
+            ILogger<TenantManager<TTenant>> logger)
         {
             ArgCheck.NotNull(nameof(store), store);
             Store = store;
@@ -226,7 +226,7 @@ namespace MultiTenancyServer
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the tenant matching the specified <paramref name="canonicalName"/> if it exists.
         /// </returns>
-        public virtual async Task<TTenant> FindByNameAsync(string canonicalName)
+        public virtual async Task<TTenant> FindByCanonicalNameAsync(string canonicalName)
         {
             ArgCheck.NotNull(nameof(canonicalName), canonicalName);
             ThrowIfDisposed();

@@ -14,9 +14,9 @@ namespace MultiTenancyServer.Services
         /// <summary>
         /// Validates the specified <paramref name="tenant"/> as an asynchronous operation.
         /// </summary>
-        /// <param name="manager">The <see cref="TenancyManager{TTenant}"/> that can be used to retrieve tenant properties.</param>
+        /// <param name="manager">The <see cref="TenantManager{TTenant}"/> that can be used to retrieve tenant properties.</param>
         /// <param name="tenant">The tenant to validate.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="TenancyResult"/> of the validation operation.</returns>
-        Task<TenancyResult> ValidateAsync(TenancyManager<TTenant> manager, TTenant tenant);
+        Task<TenancyResult> ValidateAsync(TenantManager<TTenant> manager, TTenant tenant);
     }
 }

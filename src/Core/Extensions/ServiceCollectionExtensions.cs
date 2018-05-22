@@ -49,7 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddScoped<ILookupNormalizer, UpperInvariantLookupNormalizer>();
             // No interface for the error describer so we can add errors without rev'ing the interface
             services.TryAddScoped<TenancyErrorDescriber>();
-            services.TryAddScoped<TenancyManager<TTenant>, TenancyManager<TTenant>>();
+            services.TryAddScoped<TenantManager<TTenant>, TenantManager<TTenant>>();
 
             if (setup != null)
             {

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>0.7.0</Version>
+    <Version>0.7.1</Version>
     <Authors>Kris Penner</Authors>
     <Product>MultiTenancyServer</Product>
     <Description>MultiTenancyServer stores library.</Description>

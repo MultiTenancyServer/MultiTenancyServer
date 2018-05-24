@@ -1,0 +1,31 @@
+﻿<Project>
+
+    <PropertyGroup>
+        <Authors>Kris Penner</Authors>
+        <Company></Company>
+        <Product>MultiTenancyServer</Product>
+        <Copyright>Copyright © Kris Penner. All rights reserved.</Copyright>
+        <DefaultLanguage>en-US</DefaultLanguage>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageLicenseUrl>https://raw.githubusercontent.com/MultiTenancyServer/MultiTenancyServer/master/LICENSE</PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/MultiTenancyServer</PackageProjectUrl>
+        <PackageIconUrl>https://avatars3.githubusercontent.com/u/38764835</PackageIconUrl>
+        <RepositoryUrl>https://github.com/MultiTenancyServer/MultiTenancyServer</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <UseFullSemVerForNuGet>true</UseFullSemVerForNuGet>
+        <GenerateDocumentationFile Condition=" '$(Configuration)' == 'Release' ">true</GenerateDocumentationFile>
+        <DebugType>embedded</DebugType>
+        <IncludeSymbols>false</IncludeSymbols>
+        <SourceLinkEnabled>true</SourceLinkEnabled>
+        <IsTestProject>$(MSBuildProjectName.Contains('Test'))</IsTestProject>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(IsTestProject)' != 'true' and '$(SourceLinkEnabled)' != 'false'">
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-62909-01" PrivateAssets="All"/>
+    </ItemGroup>
+
+</Project>

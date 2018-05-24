@@ -1,4 +1,4 @@
-image: Visual Studio 2017
+﻿image: Visual Studio 2017
 configuration: Release
 skip_tags: true
 pull_requests:

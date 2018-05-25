@@ -75,24 +75,36 @@ namespace MultiTenancyServer.Configuration.DependencyInjection
         /// <summary>
         /// Adds a <see cref="TenantManager{TTenant}"/> for the <seealso cref="TenantType"/>.
         /// </summary>
-        /// <typeparam name="TTenantManager">The type of the tenant manager to add.</typeparam>
+        /// <typeparam name="TManager">The type of the tenant manager to add.</typeparam>
         /// <returns>The current <see cref="TenancyBuilder"/> instance.</returns>
-        public virtual TenancyBuilder<TTenant, TKey> AddTenantManager<TTenantManager>(Func<IServiceProvider, TTenantManager> managerFactory = null)
-            where TTenantManager : TenantManager<TTenant>
+        public virtual TenancyBuilder<TTenant, TKey> AddTenantManager<TManager>(Func<IServiceProvider, TManager> managerFactory = null)
+            where TManager : TenantManager<TTenant>
         {
-            Services.AddScoped<TenantManager<TTenant>, TTenantManager>(managerFactory);
+            Services.AddScoped<TenantManager<TTenant>, TManager>(managerFactory);
             return this;
         }
 
         /// <summary>
         /// Adds a <see cref="ITenancyProvider{TTenant}"/> for the <seealso cref="TenantType"/>.
         /// </summary>
-        /// <typeparam name="TTenancyProvider">The type of the tenancy provider to add.</typeparam>
+        /// <typeparam name="TProvider">The type of the tenancy provider to add.</typeparam>
         /// <returns>The current <see cref="TenancyBuilder"/> instance.</returns>
-        public virtual TenancyBuilder<TTenant, TKey> AddTenancyProvider<TTenancyProvider>(Func<IServiceProvider, TTenancyProvider> providerFactory = null)
-            where TTenancyProvider : class, ITenancyProvider<TTenant>
+        public virtual TenancyBuilder<TTenant, TKey> AddTenancyProvider<TProvider>(Func<IServiceProvider, TProvider> providerFactory = null)
+            where TProvider : class, ITenancyProvider<TTenant>
         {
-            Services.AddScoped<ITenancyProvider<TTenant>, TTenancyProvider>(providerFactory);
+            Services.AddScoped<ITenancyProvider<TTenant>, TProvider>(providerFactory);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a <see cref="ITenancyContext{TTenant}"/> for the <seealso cref="TenantType"/>.
+        /// </summary>
+        /// <typeparam name="TContext">The type of the tenancy context to add.</typeparam>
+        /// <returns>The current <see cref="TenancyBuilder"/> instance.</returns>
+        public virtual TenancyBuilder<TTenant, TKey> AddTenancyContext<TContext>(Func<IServiceProvider, TContext> contextFactory = null)
+            where TContext : class, ITenancyContext<TTenant>
+        {
+            Services.AddScoped<ITenancyContext<TTenant>, TContext>(contextFactory);
             return this;
         }
     }

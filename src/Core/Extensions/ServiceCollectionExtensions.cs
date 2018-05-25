@@ -45,11 +45,12 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddOptions().AddLogging();
 
             // Services used by tenancy
-            services.TryAddScoped<ITenantValidator<TTenant>, TenantValidator<TTenant>>();
             services.TryAddScoped<ILookupNormalizer, UpperInvariantLookupNormalizer>();
+            services.TryAddScoped<ITenantValidator<TTenant>, TenantValidator<TTenant>>();
             // No interface for the error describer so we can add errors without rev'ing the interface
             services.TryAddScoped<TenancyErrorDescriber>();
             services.TryAddScoped<TenantManager<TTenant>, TenantManager<TTenant>>();
+            services.TryAddScoped<ITenancyContext<TTenant>, TenancyContext<TTenant>>();
 
             if (setup != null)
             {

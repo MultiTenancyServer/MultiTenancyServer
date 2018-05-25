@@ -14,12 +14,6 @@ namespace MultiTenancyServer
     public interface ITenancyProvider<TTenant> where TTenant : class
     {
         /// <summary>
-        /// Gets the current tenant of the scoped process.
-        /// </summary>
-        /// <returns>Current tenant of the scoped process.</returns>
-        TTenant GetCurrentTenant();
-
-        /// <summary>
         /// Asynchronously gets the current tenant of the scoped process.
         /// </summary>
         /// <returns>A task that when completed will result in the current tenant of the scoped process.</returns>

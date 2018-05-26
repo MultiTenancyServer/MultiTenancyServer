@@ -16,12 +16,6 @@ namespace MultiTenancyServer.Options
         public string ReferenceName { get; set; } = "TenantId";
 
         /// <summary>
-        /// If set to a positive number, the store will use this value as the max length for any properties used as keys.
-        /// The default is 256.
-        /// </summary>
-        public int MaxLengthForKeys { get; set; } = 256;
-
-        /// <summary>
         /// True to enable indexing of tenant reference properties in the store, otherwise false.
         /// The default is true.
         /// </summary>

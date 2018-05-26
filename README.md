@@ -1,7 +1,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/6by9bawg017k26tl/branch/master?svg=true)](https://ci.appveyor.com/project/krispenner/multitenancyserver/branch/master)
 # MultiTenancyServer
 
-MultiTenancyServer aims to be a lightweight package for adding multi-tenancy support to any codebase easily. It is heavily influenced from the design of ASP.NET Core Identity. You can add multi-tenancy support to your model without adding any tenant partition key properties to any classes/entities. Using ASP.NET Core, the current tenant is retrieved from a custom domain name, sub-domain, partial hostname, HTTP request header, child or partial URL path, query string parameter, authenticated user claim, or a custom implementation. Using Entity Framework Core, tenant partition keys are added as shadow properties (or optionally concrete properties) and enforced through global query filters. The below example shows how to use MultiTenancyServer with ASP.NET Core Identity and IdentityServer4 together, if you only need one remove the other or use this as a base for your own requirements.
+MultiTenancyServer aims to be a lightweight package for adding multi-tenancy support to any codebase easily. It is heavily influenced from the design of ASP.NET Core Identity. You can add multi-tenancy support to your model without adding any tenant key properties to any classes or entities. Using ASP.NET Core, the current tenant can be retrieved by a custom domain name, sub-domain, partial hostname, HTTP request header, child or partial URL path, query string parameter, authenticated user claim, or a custom request parser implementation. Using Entity Framework Core, tenant keys are added as shadow properties (or optionally concrete properties) and enforced through global query filters, all configurable options can be set from a default or  per entity. The below example shows how to use MultiTenancyServer with ASP.NET Core Identity and IdentityServer4 together, if you only need one remove the other or use this as a base for your own requirements.
 
 ## Define Model
 Define your own tenant model, or inherit from TenancyTenant, or just use TenancyTenant as is. In this example we will inherit from TenancyTenant.
@@ -91,6 +91,7 @@ Example of DbContext with multi-tenancy support for ASP.NET Core Identity and Id
         private static object _tenancyModelState;
         private readonly ITenancyContext<Tenant> _tenancyContext;
         private readonly ILogger _logger;
+        // Use a property wrapper to access the scoped tenant on demand.
         private string _tenantId => _tenancyContext?.Tenant?.Id;
 
         public SecuridDbContext(
@@ -99,6 +100,10 @@ Example of DbContext with multi-tenancy support for ASP.NET Core Identity and Id
             ILogger<AppDbContext> logger)
             : base(options)
         {
+            // The request scoped tenancy context.
+            // Should not access the tenancyContext.Tenant property in the constructor yet,
+            // as the request pipeline has not finished running yet and it will likely be null.
+            // Use the private property wrapper above to access it later on demand.
             _tenancyContext = tenancyContext;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -260,4 +265,62 @@ public class TenantReferenceOptions
     //     for null tenant references is handled.
     public NullTenantReferenceHandling NullTenantReferenceHandling { get; set; }
 }
+
+public enum NullTenantReferenceHandling
+{
+    // Summary:
+    //     A null tenant reference is NOT allowed for the entity, where possible a NOT NULL
+    //     or REQUIRED constraint should be set on the tenant reference, querying for entities
+    //     with a null tenant reference will match NO entities.
+    //     This is the default option.
+    NotNullDenyAccess = 0,
+
+    // Summary:
+    //     A null tenant reference is allowed for the entity, where possible an NULLABLE
+    //     or OPTIONAL constraint should be set on the tenant reference, querying for entities
+    //     with a null tenant reference will match those expected results.
+    //     This may be useful where globally defined system entities are set with a null
+    //     tenant reference.
+    NullableEntityAccess = 1,
+
+    // Summary:
+    //     A null tenant reference is NOT allowed for the entity, where possible a NOT NULL
+    //     or REQUIRED constraint should be set on the tenant reference, querying for entities
+    //     with a null tenant reference will match ALL entities across all tenants.
+    //     For obvious security reasons, this is typically not recommended; however, this
+    //     can be useful for admin reporting across all tenants.
+    NotNullGlobalAccess = 2
+}
+
 ```
+
+## Interesting Logs
+
+### Microsoft.AspNetCore start of request
+
+> Microsoft.AspNetCore.Hosting.Internal.WebHost:Information: Request starting HTTP/1.1 POST http://**localhost**:5020/account/login?returnUrl=%2Fgrants application/x-www-form-urlencoded 267
+
+### MultiTenancyServer.EntityFrameworkCore lookup tenant
+
+> Microsoft.EntityFrameworkCore.Database.Command:Information: Executed DbCommand (3ms) [Parameters=[@__normalizedCanonicalName_0='**LOCALHOST**' (Size = 256)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[CanonicalName], [u].[ConcurrencyStamp], [u].[Name], [u].[NormalizedCanonicalName]
+FROM [Tenants] AS [u]
+WHERE [u].[NormalizedCanonicalName] = @__normalizedCanonicalName_0
+
+### MultiTenancyServer.AspNetCore found tenant
+
+>MultiTenancyServer.Http.HttpTenancyProvider:Debug: Tenant **TEST_TENANT_1** found by **DomainParser** for value **localhost** in request http://**localhost**:5020/account/login?returnUrl=%2Fgrants.
+
+### Microsoft.AspNetCore.Identity lookup user within tenant
+
+> Microsoft.EntityFrameworkCore.Database.Command:Information: Executed DbCommand (13ms) [Parameters=[@___tenantId_0='**TEST_TENANT_1**' (Size = 4000), @__normalizedUserName_0='ALICE' (Size = 256)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], ..., [u].[UserName]
+FROM [Users] AS [u]
+WHERE **(@___tenantId_0 IS NOT NULL AND ([u].[TenantId] = @___tenantId_0))** AND ([u].[NormalizedUserName] = @__normalizedUserName_0)
+
+### IdentityServer4 lookup persisted grant within tenant
+
+> Microsoft.EntityFrameworkCore.Database.Command:Information: Executed DbCommand (1ms) [Parameters=[@___tenantId_0='**TEST_TENANT_1**' (Size = 4000), @__subjectId_0='3ab99036-8ac1-4270-8a1e-390988966b9c' (Size = 200)], CommandType='Text', CommandTimeout='30']
+SELECT [p].[Key], [p].[ClientId], [p].[CreationTime], [p].[Data], [p].[Expiration], [p].[SubjectId], [p].[TenantId], [p].[Type]
+FROM [PersistedGrants] AS [p]
+WHERE **(@___tenantId_0 IS NOT NULL AND ([p].[TenantId] = @___tenantId_0))** AND ([p].[SubjectId] = @__subjectId_0)

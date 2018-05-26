@@ -33,5 +33,10 @@ namespace MultiTenancyServer.Options
         /// The default is "{0}Index", eg. "TenantIdIndex".
         /// </summary>
         public string IndexNameFormat { get; set; } = "{0}Index";
+
+        /// <summary>
+        /// Determines if a null tenant reference is allowed for entities and how querying for null tenant references is handled.
+        /// </summary>
+        public NullTenantReferenceHandling NullTenantHandling { get; set; } = NullTenantReferenceHandling.NotNullDenyAccess;
     }
 }

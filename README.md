@@ -44,7 +44,9 @@ public void ConfigureServices(IServiceCollection services)
                 .AddQueryParser("tenant")
                 // Claim from authenticated user principal.
                 .AddClaimParser("http://schemas.microsoft.com/identity/claims/tenantid")
-                // Add custom request parser.
+                // Add custom request parser with lambda.
+                .AddCustomParser(httpContext => "tenant1");
+                // Add custom request parser implementation.
                 .AddMyCustomParser();
         })
         // Use in memory tenant store for development (MultiTenancyServer.Stores)
@@ -243,11 +245,6 @@ public class TenantReferenceOptions
     //     If set to a non-null value, the store will use this value as the name for the
     //     tenant's reference property. The default is "TenantId".
     public string ReferenceName { get; set; }
-
-    // Summary:
-    //     If set to a positive number, the store will use this value as the max length
-    //     for any properties used as keys. The default is 256.
-    public int MaxLengthForKeys { get; set; }
 
     // Summary:
     //     True to enable indexing of tenant reference properties in the store, otherwise

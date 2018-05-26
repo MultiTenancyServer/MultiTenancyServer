@@ -47,7 +47,7 @@ public void ConfigureServices(IServiceCollection services)
                 // Add custom request parser.
                 .AddMyCustomParser();
         })
-        // Use in memory tenant store for testing (MultiTenancyServer.Stores)
+        // Use in memory tenant store for development (MultiTenancyServer.Stores)
         .AddInMemoryStore(new Tenant[] 
         { 
             new Tenant() 
@@ -59,12 +59,25 @@ public void ConfigureServices(IServiceCollection services)
         })
         // Use EF Core store for production (MultiTenancyServer.EntityFrameworkCore).
         .AddEntityFrameworkStore<AppDbContext, Tenant, string>()
-        // Or implement your own store...
-        .AddMongoDbStore();
+        // Use custom store.
+        .AddMyCustomStore();
 }    
 ```
 
-## Register Entities
+## Add Middleware
+Example of configuring application with multi-tenancy support for ASP.NET Core MVC and IdentityServer4.
+``` csharp
+public void Configure(IApplicationBuilder app)
+{
+    // other code removed for brevity
+
+    app.UseMultiTenancy<Tenant>();
+    app.UseIdentityServer();
+    app.UseMvcWithDefaultRoute();
+}
+```
+
+## Configure Entities
 Example of DbContext with multi-tenancy support for ASP.NET Core Identity and IdentityServer4.
 ``` csharp
     public class AppDbContext : 
@@ -76,19 +89,17 @@ Example of DbContext with multi-tenancy support for ASP.NET Core Identity and Id
         ITenantDbContext<Tenant, string>
     {
         private static object _tenancyModelState;
-        private readonly string _tenantId;
+        private readonly ITenancyContext<Tenant> _tenancyContext;
         private readonly ILogger _logger;
+        private string _tenantId => _tenancyContext?.Tenant?.Id;
 
         public SecuridDbContext(
             DbContextOptions<SecuridDbContext> options, 
-            ITenancyProvider<Tenant> tenancyProvider, 
+            ITenancyContext<Tenant> tenancyContext, 
             ILogger<AppDbContext> logger)
             : base(options)
         {
-            // The ID of the currently scoped tenant (of the current HTTP request).
-            // While this method is async to facilitate async scenarios,
-            // the built-in provider for ASP.NET Core will return immediately.
-            _tenantId = tenancyProvider?.GetCurrentTenantAsync().GetAwaiter().GetResult()?.Id;
+            _tenancyContext = tenancyContext;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -204,16 +215,49 @@ Example of DbContext with multi-tenancy support for ASP.NET Core Identity and Id
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            // Ensure multi-tenancy for all tenatable entities.
+            // Ensure multi-tenancy for all tenantable entities.
             this.EnsureTenancy(_tenantId, _tenancyModelState, _logger);
             return base.SaveChanges(acceptAllChangesOnSuccess);
         }
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
-            // Ensure multi-tenancy for all tenatable entities.
+            // Ensure multi-tenancy for all tenantable entities.
             this.EnsureTenancy(_tenantId, _tenancyModelState, _logger);
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
     }
+```
+
+## Additional Options
+
+``` csharp
+public class TenantReferenceOptions
+{
+    // Summary:
+    //     If set to a non-null value, the store will use this value as the name for the
+    //     tenant's reference property. The default is "TenantId".
+    public string ReferenceName { get; set; }
+
+    // Summary:
+    //     If set to a positive number, the store will use this value as the max length
+    //     for any properties used as keys. The default is 256.
+    public int MaxLengthForKeys { get; set; }
+
+    // Summary:
+    //     True to enable indexing of tenant reference properties in the store, otherwise
+    //     false. The default is true.
+    public bool IndexReferences { get; set; }
+
+    // Summary:
+    //     If set to a non-null value, the store will use this value as the name of the
+    //     index for any tenant references. The name is also a format pattern of {0:PropertyName}.
+    //     The default is "{0}Index", eg. "TenantIdIndex".
+    public string IndexNameFormat { get; set; }
+
+    // Summary:
+    //     Determines if a null tenant reference is allowed for entities and how querying
+    //     for null tenant references is handled.
+    public NullTenantReferenceHandling NullTenantReferenceHandling { get; set; }
+}
 ```

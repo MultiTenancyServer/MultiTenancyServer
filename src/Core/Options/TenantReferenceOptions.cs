@@ -37,6 +37,6 @@ namespace MultiTenancyServer.Options
         /// <summary>
         /// Determines if a null tenant reference is allowed for entities and how querying for null tenant references is handled.
         /// </summary>
-        public NullTenantReferenceHandling NullTenantHandling { get; set; } = NullTenantReferenceHandling.NotNullDenyAccess;
+        public NullTenantReferenceHandling NullTenantReferenceHandling { get; set; } = NullTenantReferenceHandling.NotNullDenyAccess;
     }
 }

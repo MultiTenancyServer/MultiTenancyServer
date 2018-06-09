@@ -1,4 +1,5 @@
 ﻿image: Visual Studio 2017
+version: '{build}'
 configuration: Release
 skip_tags: true
 pull_requests:

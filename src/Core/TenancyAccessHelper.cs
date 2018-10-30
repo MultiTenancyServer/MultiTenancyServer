@@ -4,25 +4,11 @@
 using System;
 using KodeAid;
 using Microsoft.Extensions.Logging;
-using MultiTenancyServer.Models;
 
 namespace MultiTenancyServer
 {
     public static class TenancyAccessHelper
     {
-        public static void EnsureTenancy<TKey>(ITenanted<TKey> obj, TKey tenantId, ILogger logger = null)
-          where TKey : IEquatable<TKey>
-        {
-            ArgCheck.NotNull(nameof(obj), obj);
-            ArgCheck.NotNull(nameof(tenantId), tenantId);
-
-            var accessedTenantId = obj.TenantId;
-            if (accessedTenantId != null)
-                CheckTenancyAccess(tenantId, accessedTenantId, logger);
-            else
-                obj.TenantId = tenantId;
-        }
-
         public static void CheckTenancyAccess<TKey>(TKey currentTenantId, TKey accessedTenantId, ILogger logger = null)
           where TKey : IEquatable<TKey>
         {

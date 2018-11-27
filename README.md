@@ -19,6 +19,15 @@ Example of adding multi-tenancy support to ASP.NET Core.
 ``` csharp
 public void ConfigureServices(IServiceCollection services)
 {
+    var connectionString = Configuration.GetConnectionString("DefaultConnection");
+    var migrationsAssemblyName = typeof(AppDbContext).GetTypeInfo().Assembly.GetName().Name;
+    services.AddDbContext<AppDbContext>(options =>
+    {
+        options.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationsAssemblyName));
+        // should not be enabled in production
+        options.EnableSensitiveDataLogging();
+    });
+
     services
         // Add Multi-Tenancy Server defining TTenant<TKey> as type Tenant with an ID (key) of type string.
         .AddMultiTenancy<Tenant, string>()
@@ -63,6 +72,67 @@ public void ConfigureServices(IServiceCollection services)
         .AddEntityFrameworkStore<AppDbContext, Tenant, string>()
         // Use custom store.
         .AddMyCustomStore();
+        
+    // Add ASP.NET Core Identity
+    // should not be enabled in production
+    IdentityModelEventSource.ShowPII = true;
+    services
+        .AddIdentity<User, Role>()
+        .AddEntityFrameworkStores<AppDbContext>()
+        .AddDefaultTokenProviders();
+
+    // Add MVC
+    services.AddMvc(options =>
+    {
+        options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+        options.Filters.Add(new RequireHttpsAttribute());
+    });
+
+    services.AddAntiforgery();
+
+    // Configure IIS
+    services.Configure<IISOptions>(iis =>
+    {
+        iis.AuthenticationDisplayName = "Windows";
+        iis.AutomaticAuthentication = false;
+    });
+
+    // Add Identity Server 4
+    var builder = services.AddIdentityServer(options =>
+        {
+            options.Events.RaiseErrorEvents = true;
+            options.Events.RaiseInformationEvents = true;
+            options.Events.RaiseFailureEvents = true;
+            options.Events.RaiseSuccessEvents = true;
+        })
+        .AddAspNetIdentity<User>()
+        // Add the config data from DB (clients, resources)
+        .AddConfigurationStore<AppDbContext>(options =>
+        {
+            options.ConfigureDbContext = b =>
+                b.UseSqlServer(connectionString,
+                    sql => sql.MigrationsAssembly(migrationsAssemblyName));
+        })
+        // Add the operational data from DB (codes, tokens, consents)
+        .AddOperationalStore<AppDbContext>(options =>
+        {
+            options.ConfigureDbContext = b =>
+                b.UseSqlServer(connectionString,
+                    sql => sql.MigrationsAssembly(migrationsAssemblyName));
+
+            // Enables automatic token cleanup, this is optional
+            options.EnableTokenCleanup = true;
+            // options.TokenCleanupInterval = 15; // frequency in seconds to cleanup stale grants. 15 is useful during debugging
+        });
+
+    if (Environment.IsDevelopment())
+    {
+        builder.AddDeveloperSigningCredential();
+    }
+    else
+    {
+        throw new Exception("Key not configured.");
+    }
 }    
 ```
 
@@ -74,7 +144,9 @@ public void Configure(IApplicationBuilder app)
     // other code removed for brevity
 
     app.UseMultiTenancy<Tenant>();
+    app.UseStaticFiles();
     app.UseIdentityServer();
+    app.UseAuthentication();
     app.UseMvcWithDefaultRoute();
 }
 ```

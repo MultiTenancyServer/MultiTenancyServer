@@ -96,8 +96,8 @@ Example of DbContext with multi-tenancy support for ASP.NET Core Identity and Id
         // Use a property wrapper to access the scoped tenant on demand.
         private object _tenantId => _tenancyContext?.Tenant?.Id;
 
-        public SecuridDbContext(
-            DbContextOptions<SecuridDbContext> options, 
+        public AppDbContext(
+            DbContextOptions<AppDbContext> options, 
             ITenancyContext<Tenant> tenancyContext, 
             ILogger<AppDbContext> logger)
             : base(options)

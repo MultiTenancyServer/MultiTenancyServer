@@ -20,17 +20,15 @@ Example of adding multi-tenancy support to ASP.NET Core.
 public void ConfigureServices(IServiceCollection services)
 {
     var connectionString = Configuration.GetConnectionString("DefaultConnection");
-    var migrationsAssemblyName = typeof(AppDbContext).GetTypeInfo().Assembly.GetName().Name;
+    var migrationsAssembly = typeof(AppDbContext).GetTypeInfo().Assembly.GetName().Name;
+
     services.AddDbContext<AppDbContext>(options =>
     {
-        options.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationsAssemblyName));
-        // should not be enabled in production
-        options.EnableSensitiveDataLogging();
+        options.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
     });
 
-    services
-        // Add Multi-Tenancy Server defining TTenant<TKey> as type Tenant with an ID (key) of type string.
-        .AddMultiTenancy<Tenant, string>()
+    // Add Multi-Tenancy Server defining TTenant<TKey> as type Tenant with an ID (key) of type string.
+    services.AddMultiTenancy<Tenant, string>()
         // Add one or more IRequestParser (MultiTenancyServer.AspNetCore).
         .AddRequestParsers(parsers =>
         {
@@ -74,37 +72,12 @@ public void ConfigureServices(IServiceCollection services)
         .AddMyCustomStore();
         
     // Add ASP.NET Core Identity
-    // should not be enabled in production
-    IdentityModelEventSource.ShowPII = true;
-    services
-        .AddIdentity<User, Role>()
+    services.AddIdentity<User, Role>()
         .AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
 
-    // Add MVC
-    services.AddMvc(options =>
-    {
-        options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
-        options.Filters.Add(new RequireHttpsAttribute());
-    });
-
-    services.AddAntiforgery();
-
-    // Configure IIS
-    services.Configure<IISOptions>(iis =>
-    {
-        iis.AuthenticationDisplayName = "Windows";
-        iis.AutomaticAuthentication = false;
-    });
-
     // Add Identity Server 4
-    var builder = services.AddIdentityServer(options =>
-        {
-            options.Events.RaiseErrorEvents = true;
-            options.Events.RaiseInformationEvents = true;
-            options.Events.RaiseFailureEvents = true;
-            options.Events.RaiseSuccessEvents = true;
-        })
+    var builder = services.AddIdentityServer()
         .AddAspNetIdentity<User>()
         // Add the config data from DB (clients, resources)
         .AddConfigurationStore<AppDbContext>(options =>
@@ -119,10 +92,6 @@ public void ConfigureServices(IServiceCollection services)
             options.ConfigureDbContext = b =>
                 b.UseSqlServer(connectionString,
                     sql => sql.MigrationsAssembly(migrationsAssemblyName));
-
-            // Enables automatic token cleanup, this is optional
-            options.EnableTokenCleanup = true;
-            // options.TokenCleanupInterval = 15; // frequency in seconds to cleanup stale grants. 15 is useful during debugging
         });
 
     if (Environment.IsDevelopment())
@@ -233,9 +202,9 @@ Example of DbContext with multi-tenancy support for ASP.NET Core Identity and Id
             {
                 // Add multi-tenancy support to entity.
                 b.HasTenancy(() => _tenantId, _tenancyModelState, hasIndex: false);
-                // Remove unique index on NormalizedUserName.
+                // Remove unique index on NormalizedName.
                 b.HasIndex(r => r.NormalizedName).HasName("RoleNameIndex").IsUnique(false);
-                // Add unique index on TenantId and NormalizedUserName.
+                // Add unique index on TenantId and NormalizedName.
                 b.HasIndex(tenantReferenceOptions.ReferenceName, nameof(Role.NormalizedName))
                     .HasName("TenantRoleNameIndex").IsUnique();
             });

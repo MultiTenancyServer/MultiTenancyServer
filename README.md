@@ -1,7 +1,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/6by9bawg017k26tl/branch/master?svg=true)](https://ci.appveyor.com/project/krispenner/multitenancyserver/branch/master)
 # MultiTenancyServer
 
-MultiTenancyServer aims to be a lightweight package for adding multi-tenancy support to any codebase easily. It is heavily influenced from the design of ASP.NET Core Identity. You can add multi-tenancy support to your model without adding any tenant key properties to any classes or entities. Using ASP.NET Core, the current tenant can be retrieved by a custom domain name, sub-domain, partial hostname, HTTP request header, child or partial URL path, query string parameter, authenticated user claim, or a custom request parser implementation. Using Entity Framework Core, tenant keys are added as shadow properties (or optionally concrete properties) and enforced through global query filters, all configurable options can be set from a default or  per entity. The below example shows how to use MultiTenancyServer with ASP.NET Core Identity and IdentityServer4 together, if you only need one remove the other or use this as a base for your own requirements.
+MultiTenancyServer aims to be a lightweight package for adding multi-tenancy support to any codebase easily. It is heavily influenced from the design of ASP.NET Core Identity. You can add multi-tenancy support to your model without adding any tenant key properties to any classes or entities. Using ASP.NET Core, the current tenant can be retrieved by a custom domain name, sub-domain, partial hostname, HTTP request header, child or partial URL path, query string parameter, authenticated user claim, or a custom request parser implementation. Using Entity Framework Core, tenant keys are added as shadow properties (or optionally concrete properties) and enforced through global query filters, all configurable options can be set from a default or  per entity. The below example shows how to use MultiTenancyServer with ASP.NET Core Identity and IdentityServer4 together, if you only need one remove the other or use this as a base for your own requirements. You can find a full working sample integrated with ASP.NET Core Identity and Entity Framework Core [here](https://github.com/MultiTenancyServer/MultiTenancyServer.Samples).
 
 ## Define Model
 Define your own tenant model, or inherit from TenancyTenant, or just use TenancyTenant as is. In this example we will inherit from TenancyTenant.
@@ -19,9 +19,16 @@ Example of adding multi-tenancy support to ASP.NET Core.
 ``` csharp
 public void ConfigureServices(IServiceCollection services)
 {
-    services
-        // Add Multi-Tenancy Server defining TTenant<TKey> as type Tenant with an ID (key) of type string.
-        .AddMultiTenancy<Tenant, string>()
+    var connectionString = Configuration.GetConnectionString("DefaultConnection");
+    var migrationsAssembly = typeof(AppDbContext).GetTypeInfo().Assembly.GetName().Name;
+
+    services.AddDbContext<AppDbContext>(options =>
+    {
+        options.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+    });
+
+    // Add Multi-Tenancy Server defining TTenant<TKey> as type Tenant with an ID (key) of type string.
+    services.AddMultiTenancy<Tenant, string>()
         // Add one or more IRequestParser (MultiTenancyServer.AspNetCore).
         .AddRequestParsers(parsers =>
         {
@@ -63,6 +70,38 @@ public void ConfigureServices(IServiceCollection services)
         .AddEntityFrameworkStore<AppDbContext, Tenant, string>()
         // Use custom store.
         .AddMyCustomStore();
+        
+    // Add ASP.NET Core Identity
+    services.AddIdentity<User, Role>()
+        .AddEntityFrameworkStores<AppDbContext>()
+        .AddDefaultTokenProviders();
+
+    // Add Identity Server 4
+    var builder = services.AddIdentityServer()
+        .AddAspNetIdentity<User>()
+        // Add the config data from DB (clients, resources)
+        .AddConfigurationStore<AppDbContext>(options =>
+        {
+            options.ConfigureDbContext = b =>
+                b.UseSqlServer(connectionString,
+                    sql => sql.MigrationsAssembly(migrationsAssemblyName));
+        })
+        // Add the operational data from DB (codes, tokens, consents)
+        .AddOperationalStore<AppDbContext>(options =>
+        {
+            options.ConfigureDbContext = b =>
+                b.UseSqlServer(connectionString,
+                    sql => sql.MigrationsAssembly(migrationsAssemblyName));
+        });
+
+    if (Environment.IsDevelopment())
+    {
+        builder.AddDeveloperSigningCredential();
+    }
+    else
+    {
+        throw new Exception("Key not configured.");
+    }
 }    
 ```
 
@@ -74,7 +113,9 @@ public void Configure(IApplicationBuilder app)
     // other code removed for brevity
 
     app.UseMultiTenancy<Tenant>();
+    app.UseStaticFiles();
     app.UseIdentityServer();
+    app.UseAuthentication();
     app.UseMvcWithDefaultRoute();
 }
 ```
@@ -94,10 +135,10 @@ Example of DbContext with multi-tenancy support for ASP.NET Core Identity and Id
         private readonly ITenancyContext<Tenant> _tenancyContext;
         private readonly ILogger _logger;
         // Use a property wrapper to access the scoped tenant on demand.
-        private string _tenantId => _tenancyContext?.Tenant?.Id;
+        private object _tenantId => _tenancyContext?.Tenant?.Id;
 
-        public SecuridDbContext(
-            DbContextOptions<SecuridDbContext> options, 
+        public AppDbContext(
+            DbContextOptions<AppDbContext> options, 
             ITenancyContext<Tenant> tenancyContext, 
             ILogger<AppDbContext> logger)
             : base(options)
@@ -161,9 +202,9 @@ Example of DbContext with multi-tenancy support for ASP.NET Core Identity and Id
             {
                 // Add multi-tenancy support to entity.
                 b.HasTenancy(() => _tenantId, _tenancyModelState, hasIndex: false);
-                // Remove unique index on NormalizedUserName.
+                // Remove unique index on NormalizedName.
                 b.HasIndex(r => r.NormalizedName).HasName("RoleNameIndex").IsUnique(false);
-                // Add unique index on TenantId and NormalizedUserName.
+                // Add unique index on TenantId and NormalizedName.
                 b.HasIndex(tenantReferenceOptions.ReferenceName, nameof(Role.NormalizedName))
                     .HasName("TenantRoleNameIndex").IsUnique();
             });

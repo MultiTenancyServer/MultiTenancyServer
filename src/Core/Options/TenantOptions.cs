@@ -11,7 +11,7 @@ namespace MultiTenancyServer.Options
     {
         /// <summary>
         /// Gets or sets the list of allowed characters in the canonical name used to validate tenant canonical names.
-        /// Defaults to abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+
+        /// Defaults to abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.
         /// </summary>
         /// <value>
         /// The list of allowed characters in the canonical name used to validate tenant canonical names.

@@ -21,7 +21,8 @@ namespace MultiTenancyServer
     /// Provides the APIs for managing tenants in a persistence store.
     /// </summary>
     /// <typeparam name="TTenant">The type encapsulating a tenant.</typeparam>
-    public class TenantManager<TTenant> : IDisposable where TTenant : class
+    public class TenantManager<TTenant> : IDisposable
+        where TTenant : class
     {
         private bool _disposed;
         private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
@@ -51,6 +52,7 @@ namespace MultiTenancyServer
             ILogger<TenantManager<TTenant>> logger)
         {
             ArgCheck.NotNull(nameof(store), store);
+
             Store = store;
             Options = optionsAccessor?.Value ?? new TenancyOptions();
             KeyNormalizer = keyNormalizer;
@@ -114,6 +116,7 @@ namespace MultiTenancyServer
             get
             {
                 ThrowIfDisposed();
+
                 return Store is IQueryableTenantStore<TTenant>;
             }
         }
@@ -147,12 +150,12 @@ namespace MultiTenancyServer
         /// </summary>
         /// <param name="tenant">The tenant to generate the stamp for.</param>
         /// <returns>
-        /// The <see cref="Task"/> that represents the asynchronous operation, containing the security
+        /// The <see cref="ValueTask"/> that represents the asynchronous operation, containing the security
         /// stamp for the specified <paramref name="tenant"/>.
         /// </returns>
-        public virtual Task<string> GenerateConcurrencyStampAsync(TTenant tenant)
+        public virtual ValueTask<string> GenerateConcurrencyStampAsync(TTenant tenant)
         {
-            return Task.FromResult(Guid.NewGuid().ToString());
+            return new ValueTask<string>(Guid.NewGuid().ToString());
         }
 
         /// <summary>
@@ -167,12 +170,16 @@ namespace MultiTenancyServer
         public virtual async Task<TenancyResult> CreateAsync(TTenant tenant)
         {
             ThrowIfDisposed();
+
             var result = await ValidateTenantAsync(tenant);
+
             if (!result.Succeeded)
             {
                 return result;
             }
+
             await UpdateNormalizedCanonicalNameAsync(tenant);
+
             return await Store.CreateAsync(tenant, CancellationToken);
         }
 
@@ -188,6 +195,7 @@ namespace MultiTenancyServer
         {
             ArgCheck.NotNull(nameof(tenant), tenant);
             ThrowIfDisposed();
+
             return UpdateTenantAsync(tenant);
         }
 
@@ -203,6 +211,7 @@ namespace MultiTenancyServer
         {
             ArgCheck.NotNull(nameof(tenant), tenant);
             ThrowIfDisposed();
+
             return Store.DeleteAsync(tenant, CancellationToken);
         }
 
@@ -211,11 +220,12 @@ namespace MultiTenancyServer
         /// </summary>
         /// <param name="tenantId">The tenant ID to search for.</param>
         /// <returns>
-        /// The <see cref="Task"/> that represents the asynchronous operation, containing the tenant matching the specified <paramref name="tenantId"/> if it exists.
+        /// The <see cref="ValueTask"/> that represents the asynchronous operation, containing the tenant matching the specified <paramref name="tenantId"/> if it exists.
         /// </returns>
-        public virtual Task<TTenant> FindByIdAsync(string tenantId)
+        public virtual ValueTask<TTenant> FindByIdAsync(string tenantId)
         {
             ThrowIfDisposed();
+
             return Store.FindByIdAsync(tenantId, CancellationToken);
         }
 
@@ -224,9 +234,9 @@ namespace MultiTenancyServer
         /// </summary>
         /// <param name="canonicalName">The canonical name to search for.</param>
         /// <returns>
-        /// The <see cref="Task"/> that represents the asynchronous operation, containing the tenant matching the specified <paramref name="canonicalName"/> if it exists.
+        /// The <see cref="ValueTask"/> that represents the asynchronous operation, containing the tenant matching the specified <paramref name="canonicalName"/> if it exists.
         /// </returns>
-        public virtual async Task<TTenant> FindByCanonicalNameAsync(string canonicalName)
+        public virtual async ValueTask<TTenant> FindByCanonicalNameAsync(string canonicalName)
         {
             ArgCheck.NotNull(nameof(canonicalName), canonicalName);
             ThrowIfDisposed();
@@ -249,8 +259,8 @@ namespace MultiTenancyServer
         /// Updates the normalized canonical name for the specified <paramref name="tenant"/>.
         /// </summary>
         /// <param name="tenant">The tenant whose canonical name should be normalized and updated.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual async Task UpdateNormalizedCanonicalNameAsync(TTenant tenant)
+        /// <returns>The <see cref="ValueTask"/> that represents the asynchronous operation.</returns>
+        public virtual async ValueTask UpdateNormalizedCanonicalNameAsync(TTenant tenant)
         {
             var normalizedCanonicalName = NormalizeKey(await GetCanonicalNameAsync(tenant));
             await Store.SetNormalizedCanonicalNameAsync(tenant, normalizedCanonicalName, CancellationToken);
@@ -260,11 +270,12 @@ namespace MultiTenancyServer
         /// Gets the canonical name for the specified <paramref name="tenant"/>.
         /// </summary>
         /// <param name="tenant">The tenant whose canonical name should be retrieved.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the name for the specified <paramref name="tenant"/>.</returns>
-        public virtual async Task<string> GetCanonicalNameAsync(TTenant tenant)
+        /// <returns>The <see cref="ValueTask"/> that represents the asynchronous operation, containing the name for the specified <paramref name="tenant"/>.</returns>
+        public virtual async ValueTask<string> GetCanonicalNameAsync(TTenant tenant)
         {
             ArgCheck.NotNull(nameof(tenant), tenant);
             ThrowIfDisposed();
+
             return await Store.GetCanonicalNameAsync(tenant, CancellationToken);
         }
 
@@ -273,12 +284,14 @@ namespace MultiTenancyServer
         /// </summary>
         /// <param name="tenant">The tenant whose canonical name should be set.</param>
         /// <param name="canonicalName">The canonical name to set.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual async Task<TenancyResult> SetCanonicalNameAsync(TTenant tenant, string canonicalName)
+        /// <returns>The <see cref="ValueTask"/> that represents the asynchronous operation.</returns>
+        public virtual async ValueTask<TenancyResult> SetCanonicalNameAsync(TTenant tenant, string canonicalName)
         {
             ArgCheck.NotNull(nameof(tenant), tenant);
             ThrowIfDisposed();
+
             await Store.SetCanonicalNameAsync(tenant, canonicalName, CancellationToken);
+
             return await UpdateTenantAsync(tenant);
         }
 
@@ -287,9 +300,10 @@ namespace MultiTenancyServer
         /// </summary>
         /// <param name="tenant">The tenant whose identifier should be retrieved.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the identifier for the specified <paramref name="tenant"/>.</returns>
-        public virtual async Task<string> GetTenantIdAsync(TTenant tenant)
+        public virtual async ValueTask<string> GetTenantIdAsync(TTenant tenant)
         {
             ThrowIfDisposed();
+
             return await Store.GetTenantIdAsync(tenant, CancellationToken);
         }
 
@@ -312,22 +326,26 @@ namespace MultiTenancyServer
         /// </summary>
         /// <param name="tenant">The tenant</param>
         /// <returns>A <see cref="TenancyResult"/> representing whether validation was successful.</returns>
-        protected async Task<TenancyResult> ValidateTenantAsync(TTenant tenant)
+        protected async ValueTask<TenancyResult> ValidateTenantAsync(TTenant tenant)
         {
             var errors = new List<TenancyError>();
+
             foreach (var v in TenantValidators)
             {
                 var result = await v.ValidateAsync(this, tenant);
+
                 if (!result.Succeeded)
                 {
                     errors.AddRange(result.Errors);
                 }
             }
+
             if (errors.Count > 0)
             {
                 Logger.LogWarning(13, "Tenant {tenantId} validation failed: {errors}.", await GetTenantIdAsync(tenant), string.Join(";", errors.Select(e => e.Code)));
                 return TenancyResult.Failed(errors.ToArray());
             }
+
             return TenancyResult.Success;
         }
 
@@ -339,11 +357,14 @@ namespace MultiTenancyServer
         protected virtual async Task<TenancyResult> UpdateTenantAsync(TTenant tenant)
         {
             var result = await ValidateTenantAsync(tenant);
+
             if (!result.Succeeded)
             {
                 return result;
             }
+
             await UpdateNormalizedCanonicalNameAsync(tenant);
+
             return await Store.UpdateAsync(tenant, CancellationToken);
         }
 

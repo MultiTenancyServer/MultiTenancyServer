@@ -12,7 +12,7 @@ namespace MultiTenancyServer
         /// Initializes a new instance of the System.InvalidOperationException class.
         /// </summary>
         public CrossTenancyAccessViolationException()
-          : base()
+            : base()
         {
         }
 
@@ -22,7 +22,7 @@ namespace MultiTenancyServer
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
         public CrossTenancyAccessViolationException(string message)
-          : base()
+            : base()
         {
         }
 
@@ -36,7 +36,7 @@ namespace MultiTenancyServer
         /// parameter is not a null reference (Nothing in Visual Basic), the current exception
         /// is raised in a catch block that handles the inner exception.</param>
         public CrossTenancyAccessViolationException(string message, Exception innerException)
-          : base()
+            : base()
         {
         }
 
@@ -47,7 +47,7 @@ namespace MultiTenancyServer
         /// <param name="info">The object that holds the serialized object data.</param>
         /// <param name="context">The contextual information about the source or destination.</param>
         protected CrossTenancyAccessViolationException(SerializationInfo info, StreamingContext context)
-          : base()
+            : base()
         {
         }
     }

@@ -10,7 +10,7 @@ namespace MultiTenancyServer.Models
     /// A entity that is owned by a tenant.
     /// </summary>
     public interface ITenanted<TKey>
-      where TKey : IEquatable<TKey>
+        where TKey : IEquatable<TKey>
     {
         /// <summary>
         /// Gets the ID of the tenant that owns this entity.

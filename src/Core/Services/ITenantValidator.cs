@@ -9,7 +9,8 @@ namespace MultiTenancyServer.Services
     /// Provides an abstraction for tenant validation.
     /// </summary>
     /// <typeparam name="TTenant">The type encapsulating a tenant.</typeparam>
-    public interface ITenantValidator<TTenant> where TTenant : class
+    public interface ITenantValidator<TTenant>
+        where TTenant : class
     {
         /// <summary>
         /// Validates the specified <paramref name="tenant"/> as an asynchronous operation.
@@ -17,6 +18,6 @@ namespace MultiTenancyServer.Services
         /// <param name="manager">The <see cref="TenantManager{TTenant}"/> that can be used to retrieve tenant properties.</param>
         /// <param name="tenant">The tenant to validate.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="TenancyResult"/> of the validation operation.</returns>
-        Task<TenancyResult> ValidateAsync(TenantManager<TTenant> manager, TTenant tenant);
+        ValueTask<TenancyResult> ValidateAsync(TenantManager<TTenant> manager, TTenant tenant);
     }
 }

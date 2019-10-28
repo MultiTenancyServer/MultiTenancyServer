@@ -12,7 +12,8 @@ namespace MultiTenancyServer.Services
     /// Provides validation services for tenant classes.
     /// </summary>
     /// <typeparam name="TTenant">The type encapsulating a tenant.</typeparam>
-    public class TenantValidator<TTenant> : ITenantValidator<TTenant> where TTenant : class
+    public class TenantValidator<TTenant> : ITenantValidator<TTenant>
+        where TTenant : class
     {
         /// <summary>
         /// Creates a new instance of <see cref="TenantValidator{TTenant}"/>/
@@ -34,19 +35,21 @@ namespace MultiTenancyServer.Services
         /// </summary>
         /// <param name="manager">The <see cref="TenantManager{TTenant}"/> that can be used to retrieve tenant properties.</param>
         /// <param name="tenant">The tenant to validate.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="TenancyResult"/> of the validation operation.</returns>
-        public virtual async Task<TenancyResult> ValidateAsync(TenantManager<TTenant> manager, TTenant tenant)
+        /// <returns>The <see cref="ValueTask"/> that represents the asynchronous operation, containing the <see cref="TenancyResult"/> of the validation operation.</returns>
+        public virtual async ValueTask<TenancyResult> ValidateAsync(TenantManager<TTenant> manager, TTenant tenant)
         {
             ArgCheck.NotNull(nameof(manager), manager);
             ArgCheck.NotNull(nameof(tenant), tenant);
+
             var errors = new List<TenancyError>();
-            await ValidateCanonicalName(manager, tenant, errors);
+            await ValidateCanonicalNameAsync(manager, tenant, errors);
             return errors.Count > 0 ? TenancyResult.Failed(errors.ToArray()) : TenancyResult.Success;
         }
 
-        private async Task ValidateCanonicalName(TenantManager<TTenant> manager, TTenant tenant, ICollection<TenancyError> errors)
+        private async ValueTask ValidateCanonicalNameAsync(TenantManager<TTenant> manager, TTenant tenant, ICollection<TenancyError> errors)
         {
             var canonicalName = await manager.GetCanonicalNameAsync(tenant);
+
             if (string.IsNullOrWhiteSpace(canonicalName))
             {
                 errors.Add(Describer.InvalidCanonicalName(canonicalName));
@@ -59,6 +62,7 @@ namespace MultiTenancyServer.Services
             else
             {
                 var owner = await manager.FindByCanonicalNameAsync(canonicalName);
+
                 if (owner != null &&
                     !string.Equals(await manager.GetTenantIdAsync(owner), await manager.GetTenantIdAsync(tenant)))
                 {

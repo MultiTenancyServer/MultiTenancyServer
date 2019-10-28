@@ -240,4 +240,6 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
-/src/projects/Shared.Caching.ConsoleTest
+
+# Local NUGET Feed
+nuget-pack-to-local-feed.ps1

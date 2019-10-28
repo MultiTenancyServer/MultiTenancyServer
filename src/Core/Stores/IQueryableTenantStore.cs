@@ -9,7 +9,8 @@ namespace MultiTenancyServer.Stores
     /// Provides an abstraction for querying tenants in a Tenant store.
     /// </summary>
     /// <typeparam name="TTenant">The type encapsulating a tenant.</typeparam>
-    public interface IQueryableTenantStore<TTenant> : ITenantStore<TTenant> where TTenant : class
+    public interface IQueryableTenantStore<TTenant> : ITenantStore<TTenant>
+        where TTenant : class
     {
         /// <summary>
         /// Returns an <see cref="IQueryable{T}"/> collection of tenants.

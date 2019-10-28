@@ -61,16 +61,18 @@ namespace MultiTenancyServer.Stores
         /// </summary>
         /// <param name="tenant">The tenant whose identifier should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the identifier for the specified <paramref name="tenant"/>.</returns>
-        public virtual Task<string> GetTenantIdAsync(TTenant tenant, CancellationToken cancellationToken = default)
+        /// <returns>The <see cref="ValueTask"/> that represents the asynchronous operation, containing the identifier for the specified <paramref name="tenant"/>.</returns>
+        public virtual ValueTask<string> GetTenantIdAsync(TTenant tenant, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
+
             if (tenant == null)
             {
                 throw new ArgumentNullException(nameof(tenant));
             }
-            return Task.FromResult(ConvertIdToString(tenant.Id));
+
+            return new ValueTask<string>(ConvertIdToString(tenant.Id));
         }
 
         /// <summary>
@@ -78,16 +80,18 @@ namespace MultiTenancyServer.Stores
         /// </summary>
         /// <param name="tenant">The tenant whose canonical name should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the canonical name for the specified <paramref name="tenant"/>.</returns>
-        public virtual Task<string> GetCanonicalNameAsync(TTenant tenant, CancellationToken cancellationToken = default)
+        /// <returns>The <see cref="ValueTask"/> that represents the asynchronous operation, containing the canonical name for the specified <paramref name="tenant"/>.</returns>
+        public virtual ValueTask<string> GetCanonicalNameAsync(TTenant tenant, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
+
             if (tenant == null)
             {
                 throw new ArgumentNullException(nameof(tenant));
             }
-            return Task.FromResult(tenant.CanonicalName);
+
+            return new ValueTask<string>(tenant.CanonicalName);
         }
 
         /// <summary>
@@ -96,17 +100,20 @@ namespace MultiTenancyServer.Stores
         /// <param name="tenant">The tenant whose canonical name should be set.</param>
         /// <param name="canonicalName">The tenant canonical name to set.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual Task SetCanonicalNameAsync(TTenant tenant, string canonicalName, CancellationToken cancellationToken = default)
+        /// <returns>The <see cref="ValueTask"/> that represents the asynchronous operation.</returns>
+        public virtual ValueTask SetCanonicalNameAsync(TTenant tenant, string canonicalName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
+
             if (tenant == null)
             {
                 throw new ArgumentNullException(nameof(tenant));
             }
+
             tenant.CanonicalName = canonicalName;
-            return Task.CompletedTask;
+
+            return default;
         }
 
         /// <summary>
@@ -114,16 +121,18 @@ namespace MultiTenancyServer.Stores
         /// </summary>
         /// <param name="tenant">The tenant whose normalized canonical name should be retrieved.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the normalized canonical name for the specified <paramref name="tenant"/>.</returns>
-        public virtual Task<string> GetNormalizedCanonicalNameAsync(TTenant tenant, CancellationToken cancellationToken = default)
+        /// <returns>The <see cref="ValueTask"/> that represents the asynchronous operation, containing the normalized canonical name for the specified <paramref name="tenant"/>.</returns>
+        public virtual ValueTask<string> GetNormalizedCanonicalNameAsync(TTenant tenant, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
+
             if (tenant == null)
             {
                 throw new ArgumentNullException(nameof(tenant));
             }
-            return Task.FromResult(tenant.NormalizedCanonicalName);
+
+            return new ValueTask<string>(tenant.NormalizedCanonicalName);
         }
 
         /// <summary>
@@ -132,17 +141,20 @@ namespace MultiTenancyServer.Stores
         /// <param name="tenant">The tenant whose canonical name should be set.</param>
         /// <param name="normalizedCanonicalName">The normalized canonical name to set.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        public virtual Task SetNormalizedCanonicalNameAsync(TTenant tenant, string normalizedCanonicalName, CancellationToken cancellationToken = default)
+        /// <returns>The <see cref="ValueTask"/> that represents the asynchronous operation.</returns>
+        public virtual ValueTask SetNormalizedCanonicalNameAsync(TTenant tenant, string normalizedCanonicalName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
+
             if (tenant == null)
             {
                 throw new ArgumentNullException(nameof(tenant));
             }
+
             tenant.NormalizedCanonicalName = normalizedCanonicalName;
-            return Task.CompletedTask;
+
+            return default;
         }
 
         /// <summary>
@@ -175,9 +187,9 @@ namespace MultiTenancyServer.Stores
         /// <param name="tenantId">The tenant ID to search for.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>
-        /// The <see cref="Task"/> that represents the asynchronous operation, containing the tenant matching the specified <paramref name="tenantId"/> if it exists.
+        /// The <see cref="ValueTask"/> that represents the asynchronous operation, containing the tenant matching the specified <paramref name="tenantId"/> if it exists.
         /// </returns>
-        public abstract Task<TTenant> FindByIdAsync(string tenantId, CancellationToken cancellationToken = default);
+        public abstract ValueTask<TTenant> FindByIdAsync(string tenantId, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Finds and returns a tenant, if any, who has the specified normalized canonical name.
@@ -185,9 +197,9 @@ namespace MultiTenancyServer.Stores
         /// <param name="normalizedCanonicalName">The normalized canonical name to search for.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>
-        /// The <see cref="Task"/> that represents the asynchronous operation, containing the tenant matching the specified <paramref name="normalizedCanonicalName"/> if it exists.
+        /// The <see cref="ValueTask"/> that represents the asynchronous operation, containing the tenant matching the specified <paramref name="normalizedCanonicalName"/> if it exists.
         /// </returns>
-        public abstract Task<TTenant> FindByCanonicalNameAsync(string normalizedCanonicalName, CancellationToken cancellationToken = default);
+        public abstract ValueTask<TTenant> FindByCanonicalNameAsync(string normalizedCanonicalName, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Converts the provided <paramref name="id"/> to a strongly typed key object.
@@ -200,6 +212,7 @@ namespace MultiTenancyServer.Stores
             {
                 return default;
             }
+
             return (TKey)TypeDescriptor.GetConverter(typeof(TKey)).ConvertFromInvariantString(id);
         }
 
@@ -214,6 +227,7 @@ namespace MultiTenancyServer.Stores
             {
                 return null;
             }
+
             return id.ToString();
         }
 
@@ -223,7 +237,7 @@ namespace MultiTenancyServer.Stores
         /// <param name="tenantId">The tenant's id.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The tenant if it exists.</returns>
-        protected abstract Task<TTenant> FindTenantAsync(TKey tenantId, CancellationToken cancellationToken);
+        protected abstract ValueTask<TTenant> FindTenantAsync(TKey tenantId, CancellationToken cancellationToken);
 
         /// <summary>
         /// Throws if this class has been disposed.

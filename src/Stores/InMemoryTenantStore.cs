@@ -21,17 +21,17 @@ namespace MultiTenancyServer.Stores.InMemory
         where TTenant : TenancyTenant<TKey>
         where TKey : IEquatable<TKey>
     {
+        private readonly List<TTenant> _tenants = new List<TTenant>();
+
         /// <summary>
         /// Creates a new instance.
         /// </summary>
         /// <param name="describer">The <see cref="TenancyErrorDescriber"/> used to describe store errors.</param>
         public InMemoryTenantStore(IEnumerable<TTenant> tenants, TenancyErrorDescriber describer, ILogger<InMemoryTenantStore<TTenant, TKey>> logger)
-          : base(describer, logger)
+            : base(describer, logger)
         {
             _tenants.AddRange(tenants ?? throw new ArgumentNullException(nameof(tenants)));
         }
-
-        private List<TTenant> _tenants = new List<TTenant>();
 
         /// <summary>
         /// A navigation property for the tenants the store contains.
@@ -52,8 +52,11 @@ namespace MultiTenancyServer.Stores.InMemory
             ArgCheck.NotNull(nameof(tenant), tenant);
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
+
             _tenants.Add(tenant);
+
             Logger.LogDebug($"Tenant ID '{{{nameof(TenancyTenant.Id)}}}' created.", tenant.Id);
+
             return Task.FromResult(TenancyResult.Success);
         }
 
@@ -68,7 +71,9 @@ namespace MultiTenancyServer.Stores.InMemory
             ArgCheck.NotNull(nameof(tenant), tenant);
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
+
             Logger.LogDebug($"Tenant ID '{{{nameof(TenancyTenant.Id)}}}' updated.", tenant.Id);
+
             return Task.FromResult(TenancyResult.Success);
         }
 
@@ -83,8 +88,11 @@ namespace MultiTenancyServer.Stores.InMemory
             ArgCheck.NotNull(nameof(tenant), tenant);
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
+
             _tenants.Remove(tenant);
+
             Logger.LogDebug($"Tenant ID '{{{nameof(TenancyTenant.Id)}}}' deleted.", tenant.Id);
+
             return Task.FromResult(TenancyResult.Success);
         }
 
@@ -96,16 +104,23 @@ namespace MultiTenancyServer.Stores.InMemory
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the tenant matching the specified <paramref name="tenantId"/> if it exists.
         /// </returns>
-        public override async Task<TTenant> FindByIdAsync(string tenantId, CancellationToken cancellationToken = default)
+        public override async ValueTask<TTenant> FindByIdAsync(string tenantId, CancellationToken cancellationToken = default)
         {
             ArgCheck.NotNull(nameof(tenantId), tenantId);
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
+
             var tenant = await FindTenantAsync(ConvertIdFromString(tenantId), cancellationToken);
+
             if (tenant == null)
+            {
                 Logger.LogDebug($"Tenant ID '{{{nameof(TenancyTenant.Id)}}}' not found.", tenantId);
+            }
             else
+            {
                 Logger.LogDebug($"Tenant ID '{{{nameof(TenancyTenant.Id)}}}' found.", tenantId);
+            }
+
             return tenant;
         }
 
@@ -117,17 +132,24 @@ namespace MultiTenancyServer.Stores.InMemory
         /// <returns>
         /// The <see cref="Task"/> that represents the asynchronous operation, containing the tenant matching the specified <paramref name="normalizedCanonicalName"/> if it exists.
         /// </returns>
-        public override Task<TTenant> FindByCanonicalNameAsync(string normalizedCanonicalName, CancellationToken cancellationToken = default)
+        public override ValueTask<TTenant> FindByCanonicalNameAsync(string normalizedCanonicalName, CancellationToken cancellationToken = default)
         {
             ArgCheck.NotNull(nameof(normalizedCanonicalName), normalizedCanonicalName);
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
+
             var tenant = _tenants.SingleOrDefault(t => t.NormalizedCanonicalName == normalizedCanonicalName);
+
             if (tenant == null)
+            {
                 Logger.LogDebug($"Tenant canonical name '{{{nameof(TenancyTenant.CanonicalName)}}}' not found.", normalizedCanonicalName);
+            }
             else
+            {
                 Logger.LogDebug($"Tenant canonical name '{{{nameof(TenancyTenant.CanonicalName)}}}' found.", normalizedCanonicalName);
-            return Task.FromResult(tenant);
+            }
+
+            return new ValueTask<TTenant>(tenant);
         }
 
         /// <summary>
@@ -136,11 +158,14 @@ namespace MultiTenancyServer.Stores.InMemory
         /// <param name="tenantId">The tenant's id.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The tenant if it exists.</returns>
-        protected override Task<TTenant> FindTenantAsync(TKey tenantId, CancellationToken cancellationToken)
+        protected override ValueTask<TTenant> FindTenantAsync(TKey tenantId, CancellationToken cancellationToken)
         {
             if (tenantId == null)
-                return null;
-            return Task.FromResult(_tenants.SingleOrDefault(t => t.Id.Equals(tenantId)));
+            {
+                return default;
+            }
+
+            return new ValueTask<TTenant>(_tenants.SingleOrDefault(t => t.Id.Equals(tenantId)));
         }
     }
 }

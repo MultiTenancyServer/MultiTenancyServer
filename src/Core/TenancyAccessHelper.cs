@@ -14,6 +14,7 @@ namespace MultiTenancyServer
         {
             ArgCheck.NotNull(nameof(currentTenantId), currentTenantId);
             ArgCheck.NotNull(nameof(accessedTenantId), accessedTenantId);
+
             if (!currentTenantId.Equals(accessedTenantId))
             {
                 logger?.LogError($"Cross tenancy access detected from {{CurrentTenant}} to {{AccessedTenant}}.", currentTenantId, accessedTenantId);
@@ -25,6 +26,7 @@ namespace MultiTenancyServer
         {
             ArgCheck.NotNull(nameof(currentTenantId), currentTenantId);
             ArgCheck.NotNull(nameof(accessedTenantId), accessedTenantId);
+
             if (!currentTenantId.Equals(accessedTenantId))
             {
                 logger?.LogError($"Cross tenancy access detected from {{CurrentTenant}} to {{AccessedTenant}}.", currentTenantId, accessedTenantId);

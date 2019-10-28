@@ -11,7 +11,7 @@ namespace MultiTenancyServer
     /// </summary>
     public class TenancyResult
     {
-        private List<TenancyError> _errors = new List<TenancyError>();
+        private readonly List<TenancyError> _errors = new List<TenancyError>();
 
         /// <summary>
         /// Flag indicating whether if the operation succeeded or not.
@@ -39,11 +39,16 @@ namespace MultiTenancyServer
         /// <returns>An <see cref="TenancyResult"/> indicating a failed tenancy operation, with a list of <paramref name="errors"/> if applicable.</returns>
         public static TenancyResult Failed(params TenancyError[] errors)
         {
-            var result = new TenancyResult { Succeeded = false };
+            var result = new TenancyResult
+            {
+                Succeeded = false
+            };
+
             if (errors != null)
             {
                 result._errors.AddRange(errors);
             }
+
             return result;
         }
 
@@ -57,8 +62,7 @@ namespace MultiTenancyServer
         /// </remarks>
         public override string ToString()
         {
-            return Succeeded ?
-                   "Succeeded" :
+            return Succeeded ? "Succeeded" :
                    string.Format("{0} : {1}", "Failed", string.Join(",", Errors.Select(x => x.Code).ToList()));
         }
     }

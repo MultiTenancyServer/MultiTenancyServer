@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.1</TargetFramework>
+		<TargetFramework>netstandard2.0</TargetFramework>
 		<Description>MultiTenancyServer stores library.</Description>
 		<PackageTags>multitenancy multi-tenancy multitenant multi-tenant tenants tenant company client customer division partition stores store inmemory in-memory</PackageTags>
 	</PropertyGroup>

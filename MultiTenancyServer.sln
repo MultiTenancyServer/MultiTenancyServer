@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiTenancyServer", "src\Core\MultiTenancyServer.csproj", "{DD00DD00-AA65-4670-BF29-189BE32ED854}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiTenancyServer.Stores", "src\Stores\MultiTenancyServer.Stores.csproj", "{074B6C70-E1EC-43AF-AE1C-C5B55BC4D81B}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AA50E256-B1A8-456C-B82E-C910A7803D73}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -16,6 +12,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiTenancyServer", "src\Core\MultiTenancyServer.csproj", "{DD00DD00-AA65-4670-BF29-189BE32ED854}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiTenancyServer.Stores", "src\Stores\MultiTenancyServer.Stores.csproj", "{074B6C70-E1EC-43AF-AE1C-C5B55BC4D81B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiTenancyServer.AspNetCore", "src\AspNetCore\MultiTenancyServer.AspNetCore.csproj", "{0BE1CA35-15CA-4774-8903-5F741C38448F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiTenancyServer.EntityFrameworkCore", "src\EFCore\MultiTenancyServer.EntityFrameworkCore.csproj", "{78E6805F-DE04-42F7-9906-25779CEB562C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{2E7B7F9F-7381-4AC0-AC84-43C91C1A113D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetIdentityAndEFCore", "samples\AspNetIdentityAndEFCore\AspNetIdentityAndEFCore.csproj", "{5663BB84-9A98-4FD0-974F-6322D3E0A48E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Int64AspNetIdentityAndEFCore", "samples\Int64AspNetIdentityAndEFCore\Int64AspNetIdentityAndEFCore.csproj", "{0ED2551E-8BFB-4130-969C-189026881BEC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,9 +41,29 @@ Global
 		{074B6C70-E1EC-43AF-AE1C-C5B55BC4D81B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{074B6C70-E1EC-43AF-AE1C-C5B55BC4D81B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{074B6C70-E1EC-43AF-AE1C-C5B55BC4D81B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BE1CA35-15CA-4774-8903-5F741C38448F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BE1CA35-15CA-4774-8903-5F741C38448F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BE1CA35-15CA-4774-8903-5F741C38448F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BE1CA35-15CA-4774-8903-5F741C38448F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78E6805F-DE04-42F7-9906-25779CEB562C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78E6805F-DE04-42F7-9906-25779CEB562C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78E6805F-DE04-42F7-9906-25779CEB562C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78E6805F-DE04-42F7-9906-25779CEB562C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5663BB84-9A98-4FD0-974F-6322D3E0A48E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5663BB84-9A98-4FD0-974F-6322D3E0A48E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5663BB84-9A98-4FD0-974F-6322D3E0A48E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5663BB84-9A98-4FD0-974F-6322D3E0A48E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0ED2551E-8BFB-4130-969C-189026881BEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ED2551E-8BFB-4130-969C-189026881BEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ED2551E-8BFB-4130-969C-189026881BEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ED2551E-8BFB-4130-969C-189026881BEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5663BB84-9A98-4FD0-974F-6322D3E0A48E} = {2E7B7F9F-7381-4AC0-AC84-43C91C1A113D}
+		{0ED2551E-8BFB-4130-969C-189026881BEC} = {2E7B7F9F-7381-4AC0-AC84-43C91C1A113D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EBE74528-DB53-4F90-927C-E08588B4EC9F}

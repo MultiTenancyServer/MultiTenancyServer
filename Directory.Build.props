@@ -5,7 +5,7 @@
         <Company></Company>
         <Product>MultiTenancyServer</Product>
         <VersionPrefix>2.0.0</VersionPrefix>
-        <VersionSuffix>beta1</VersionSuffix>
+        <VersionSuffix>beta2</VersionSuffix>
         <Copyright>Copyright © Kris Penner. All rights reserved.</Copyright>
         <DefaultLanguage>en-US</DefaultLanguage>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -15,7 +15,7 @@
         <RepositoryUrl>https://github.com/MultiTenancyServer/MultiTenancyServer</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <UseFullSemVerForNuGet>true</UseFullSemVerForNuGet>
-        <GenerateDocumentationFile Condition=" '$(Configuration)' == 'Release' ">true</GenerateDocumentationFile>
+        <GenerateDocumentationFile Condition="'$(Configuration)' == 'Release'">true</GenerateDocumentationFile>
         <DebugType>embedded</DebugType>
         <IncludeSymbols>false</IncludeSymbols>
         <SourceLinkEnabled>true</SourceLinkEnabled>
@@ -27,7 +27,7 @@
     </PropertyGroup>
 
     <ItemGroup Condition="'$(IsTestProject)' != 'true' and '$(SourceLinkEnabled)' != 'false'">
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
     </ItemGroup>
 
 </Project>

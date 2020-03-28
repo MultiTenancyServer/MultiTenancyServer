@@ -1,0 +1,13 @@
+﻿{
+    "profiles": {
+        "AspNetIdentityAndEFCore": {
+            "commandName": "Project",
+            "commandLineArgs": "/seed",
+            "launchBrowser": true,
+            "applicationUrl": "https://tenant1.tenants.local:5000",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        }
+    }
+}

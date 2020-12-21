@@ -1,0 +1,43 @@
+name: Publish to NuGet
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    name: Build, pack & publish
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.301
+    - name: Restore
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    - name: Pack
+      run: dotnet pack
+    - name: Publish AspNetCore
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+        PROJECT_FILE_PATH: src/AspNetCore/AspNetCore.csproj
+        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+    - name: Publish Core
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+        PROJECT_FILE_PATH: src/Core/Core.csproj
+        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+    - name: Publish EFCore
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+        PROJECT_FILE_PATH: src/EFCore/EFCore.csproj
+        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+    - name: Publish Stores
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+        PROJECT_FILE_PATH: src/Stores/Stores.csproj
+        NUGET_KEY: ${{secrets.NUGET_API_KEY}}

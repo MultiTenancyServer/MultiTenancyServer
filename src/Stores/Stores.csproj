@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Description>MultiTenancyServer stores library.</Description>
+        <AssemblyName>MultiTenancyServer.Stores</AssemblyName>
+        <RootNamespace>MultiTenancyServer.Stores</RootNamespace>
+        <PackageTags>multitenancy multi-tenancy multitenant multi-tenant tenants tenant company client customer division partition stores store inmemory in-memory</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Core\Core.csproj" />
+    </ItemGroup>
+
+</Project>

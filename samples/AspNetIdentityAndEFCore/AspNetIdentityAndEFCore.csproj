@@ -19,8 +19,8 @@
 
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\AspNetCore\MultiTenancyServer.AspNetCore.csproj" />
-        <ProjectReference Include="..\..\src\EFCore\MultiTenancyServer.EntityFrameworkCore.csproj" />
+        <ProjectReference Include="..\..\src\AspNetCore\AspNetCore.csproj" />
+        <ProjectReference Include="..\..\src\EFCore\EFCore.csproj" />
     </ItemGroup>
 
 </Project>

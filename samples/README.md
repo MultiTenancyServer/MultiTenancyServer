@@ -16,6 +16,6 @@ Components: ASP.NET Core Identity and Entity Framework Core<br/>
 Database model: single database with tenancy shadow columns<br/>
 
 ## ASP.NET Core Identity using Int64
-Sample project: [Int64AspNetIdentityAndEFCore]https://github.com/MultiTenancyServer/MultiTenancyServer/tree/master/samples/Int64AspNetIdentityAndEFCore)<br />
+Sample project: [Int64AspNetIdentityAndEFCore](https://github.com/MultiTenancyServer/MultiTenancyServer/tree/master/samples/Int64AspNetIdentityAndEFCore)<br />
 Components: ASP.NET Core Identity and Entity Framework Core<br/>
 Database model: single database with tenancy shadow columns<br/>

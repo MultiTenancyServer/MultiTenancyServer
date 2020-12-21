@@ -1,4 +1,4 @@
-![Publish to NuGet](https://github.com/MultiTenancyServer/MultiTenancyServer/workflows/Publish%20to%20NuGet/badge.svg)
+![Build and Publish to NuGet](https://github.com/MultiTenancyServer/MultiTenancyServer/workflows/Publish%20to%20NuGet/badge.svg)
 
 # MultiTenancyServer
 

@@ -11,21 +11,11 @@ All examples will register two tenants (tenant1 and tenant2) along with three us
 |chris@contoso.com|tenant2|Pass123$|
 
 ## ASP.NET Core Identity
-Sample project: [AspNetIdentityAndEFCore](https://github.com/MultiTenancyServer/MultiTenancyServer.Samples/tree/master/src/AspNetIdentityAndEFCore)<br />
+Sample project: [AspNetIdentityAndEFCore](https://github.com/MultiTenancyServer/MultiTenancyServer/tree/master/samples/AspNetIdentityAndEFCore)<br />
 Components: ASP.NET Core Identity and Entity Framework Core<br/>
 Database model: single database with tenancy shadow columns<br/>
 
 ## ASP.NET Core Identity using Int64
-Sample project: [Int64AspNetIdentityAndEFCore](https://github.com/MultiTenancyServer/MultiTenancyServer.Samples/tree/master/src/Int64AspNetIdentityAndEFCore)<br />
+Sample project: [Int64AspNetIdentityAndEFCore]https://github.com/MultiTenancyServer/MultiTenancyServer/tree/master/samples/Int64AspNetIdentityAndEFCore)<br />
 Components: ASP.NET Core Identity and Entity Framework Core<br/>
 Database model: single database with tenancy shadow columns<br/>
-
-## Identity Server 4
-Sample project: [IdentityServerWithAspIdAndEF](https://github.com/MultiTenancyServer/MultiTenancyServer.Samples/tree/master/src/IdentityServerWithAspIdAndEF)<br />
-Components: Identity Server 4, ASP.NET Core Identity and Entity Framework Core<br/>
-Database model: single database with tenancy shadow columns<br/>
-
-## Database per tenant
-Sample project: [DatabasePerTenantAspIdAndEF](https://github.com/MultiTenancyServer/MultiTenancyServer.Samples/tree/master/src/DatabasePerTenantAspIdAndEF)<br />
-Components: ASP.NET Core Identity and Entity Framework Core<br/>
-Database model: database per tenant<br/>

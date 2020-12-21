@@ -25,19 +25,27 @@ jobs:
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
         PROJECT_FILE_PATH: src/AspNetCore/AspNetCore.csproj
+        VERSION_FILE_PATH: Directory.Build.props
+        VERSION_REGEX: ^\s*<VersionPrefix>(.*)<\/VersionPrefix>\s*$
         NUGET_KEY: ${{secrets.NUGET_API_KEY}}
     - name: Publish Core
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
         PROJECT_FILE_PATH: src/Core/Core.csproj
+        VERSION_FILE_PATH: Directory.Build.props
+        VERSION_REGEX: ^\s*<VersionPrefix>(.*)<\/VersionPrefix>\s*$
         NUGET_KEY: ${{secrets.NUGET_API_KEY}}
     - name: Publish EFCore
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
         PROJECT_FILE_PATH: src/EFCore/EFCore.csproj
+        VERSION_FILE_PATH: Directory.Build.props
+        VERSION_REGEX: ^\s*<VersionPrefix>(.*)<\/VersionPrefix>\s*$
         NUGET_KEY: ${{secrets.NUGET_API_KEY}}
     - name: Publish Stores
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
         PROJECT_FILE_PATH: src/Stores/Stores.csproj
+        VERSION_FILE_PATH: Directory.Build.props
+        VERSION_REGEX: ^\s*<VersionPrefix>(.*)<\/VersionPrefix>\s*$
         NUGET_KEY: ${{secrets.NUGET_API_KEY}}
